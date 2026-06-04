@@ -1,0 +1,244 @@
+{
+  "data": [
+    {
+      "id": "1",
+      "sku": "SKU-00001",
+      "name": "Classic Notebook",
+      "category": "Toys",
+      "price": 208.49,
+      "inStock": true
+    },
+    {
+      "id": "2",
+      "sku": "SKU-00002",
+      "name": "Compact Gadget",
+      "category": "Electronics",
+      "price": 204.29,
+      "inStock": true
+    },
+    {
+      "id": "3",
+      "sku": "SKU-00003",
+      "name": "Deluxe Mug",
+      "category": "Books",
+      "price": 99.14,
+      "inStock": true
+    },
+    {
+      "id": "4",
+      "sku": "SKU-00004",
+      "name": "Classic Lamp",
+      "category": "Home",
+      "price": 233.99,
+      "inStock": true
+    },
+    {
+      "id": "5",
+      "sku": "SKU-00005",
+      "name": "Deluxe Speaker",
+      "category": "Apparel",
+      "price": 53.45,
+      "inStock": true
+    },
+    {
+      "id": "6",
+      "sku": "SKU-00006",
+      "name": "Compact Gadget",
+      "category": "Books",
+      "price": 87.31,
+      "inStock": true
+    },
+    {
+      "id": "7",
+      "sku": "SKU-00007",
+      "name": "Pro Bottle",
+      "category": "Electronics",
+      "price": 86.49,
+      "inStock": false
+    },
+    {
+      "id": "8",
+      "sku": "SKU-00008",
+      "name": "Classic Charger",
+      "category": "Toys",
+      "price": 146.19,
+      "inStock": true
+    },
+    {
+      "id": "9",
+      "sku": "SKU-00009",
+      "name": "Smart Lamp",
+      "category": "Books",
+      "price": 151.86,
+      "inStock": true
+    },
+    {
+      "id": "10",
+      "sku": "SKU-00010",
+      "name": "Compact Notebook",
+      "category": "Electronics",
+      "price": 29.81,
+      "inStock": true
+    },
+    {
+      "id": "11",
+      "sku": "SKU-00011",
+      "name": "Eco Widget",
+      "category": "Apparel",
+      "price": 44.65,
+      "inStock": true
+    },
+    {
+      "id": "12",
+      "sku": "SKU-00012",
+      "name": "Deluxe Mug",
+      "category": "Toys",
+      "price": 64.33,
+      "inStock": true
+    },
+    {
+      "id": "13",
+      "sku": "SKU-00013",
+      "name": "Pro Widget",
+      "category": "Apparel",
+      "price": 45.57,
+      "inStock": true
+    },
+    {
+      "id": "14",
+      "sku": "SKU-00014",
+      "name": "Ultra Charger",
+      "category": "Books",
+      "price": 336.5,
+      "inStock": true
+    },
+    {
+      "id": "15",
+      "sku": "SKU-00015",
+      "name": "Mini Bottle",
+      "category": "Books",
+      "price": 337.48,
+      "inStock": true
+    },
+    {
+      "id": "16",
+      "sku": "SKU-00016",
+      "name": "Ultra Gadget",
+      "category": "Electronics",
+      "price": 231.84,
+      "inStock": true
+    },
+    {
+      "id": "17",
+      "sku": "SKU-00017",
+      "name": "Deluxe Gadget",
+      "category": "Apparel",
+      "price": 110.5,
+      "inStock": true
+    },
+    {
+      "id": "18",
+      "sku": "SKU-00018",
+      "name": "Ultra Gadget",
+      "category": "Books",
+      "price": 187.91,
+      "inStock": true
+    },
+    {
+      "id": "19",
+      "sku": "SKU-00019",
+      "name": "Mini Widget",
+      "category": "Grocery",
+      "price": 409.46,
+      "inStock": true
+    },
+    {
+      "id": "20",
+      "sku": "SKU-00020",
+      "name": "Deluxe Lamp",
+      "category": "Home",
+      "price": 62.13,
+      "inStock": false
+    },
+    {
+      "id": "21",
+      "sku": "SKU-00021",
+      "name": "Eco Charger",
+      "category": "Home",
+      "price": 304.38,
+      "inStock": true
+    },
+    {
+      "id": "22",
+      "sku": "SKU-00022",
+      "name": "Pro Charger",
+      "category": "Apparel",
+      "price": 246.81,
+      "inStock": true
+    },
+    {
+      "id": "23",
+      "sku": "SKU-00023",
+      "name": "Compact Gadget",
+      "category": "Grocery",
+      "price": 214.66,
+      "inStock": true
+    },
+    {
+      "id": "24",
+      "sku": "SKU-00024",
+      "name": "Compact Notebook",
+      "category": "Books",
+      "price": 320.36,
+      "inStock": true
+    },
+    {
+      "id": "25",
+      "sku": "SKU-00025",
+      "name": "Smart Bottle",
+      "category": "Apparel",
+      "price": 9.78,
+      "inStock": false
+    },
+    {
+      "id": "26",
+      "sku": "SKU-00026",
+      "name": "Eco Widget",
+      "category": "Home",
+      "price": 293.33,
+      "inStock": false
+    },
+    {
+      "id": "27",
+      "sku": "SKU-00027",
+      "name": "Eco Widget",
+      "category": "Home",
+      "price": 185.49,
+      "inStock": true
+    },
+    {
+      "id": "28",
+      "sku": "SKU-00028",
+      "name": "Compact Notebook",
+      "category": "Books",
+      "price": 342.61,
+      "inStock": true
+    },
+    {
+      "id": "29",
+      "sku": "SKU-00029",
+      "name": "Ultra Bottle",
+      "category": "Apparel",
+      "price": 375.98,
+      "inStock": true
+    },
+    {
+      "id": "30",
+      "sku": "SKU-00030",
+      "name": "Pro Lamp",
+      "category": "Books",
+      "price": 441.29,
+      "inStock": false
+    }
+  ]
+}
