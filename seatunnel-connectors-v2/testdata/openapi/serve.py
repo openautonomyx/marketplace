@@ -22,12 +22,12 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 HERE = os.path.dirname(os.path.abspath(__file__))
 DATASETS = os.path.join(HERE, "..", "datasets")
 
-TABLES = {}   # table -> list[dict] (typed rows)
-TYPES = {}    # table -> {col: openapi-type-dict}
+TABLES = {}   # "domain/table" -> list[dict] (typed rows)
+TYPES = {}    # "domain/table" -> {col: openapi-type-dict}
 
 
-def model_name(table):
-    return "".join(w.capitalize() for w in table.split("_"))
+def model_name(domain, table):
+    return domain.capitalize() + "".join(w.capitalize() for w in table.split("_"))
 
 
 def coerce(value, t):
@@ -49,14 +49,14 @@ def coerce(value, t):
 def load(spec):
     schemas = spec["components"]["schemas"]
     for path in sorted(glob.glob(os.path.join(DATASETS, "*", "data", "*.csv"))):
+        domain = os.path.basename(os.path.dirname(os.path.dirname(path)))
         table = os.path.splitext(os.path.basename(path))[0]
-        if table in TABLES:
-            continue
-        props = schemas.get(model_name(table), {}).get("properties", {})
-        TYPES[table] = props
+        key = f"{domain}/{table}"
+        props = schemas.get(model_name(domain, table), {}).get("properties", {})
+        TYPES[key] = props
         with open(path, newline="") as fh:
-            TABLES[table] = [{k: coerce(v, props.get(k, {})) for k, v in row.items()}
-                             for row in csv.DictReader(fh)]
+            TABLES[key] = [{k: coerce(v, props.get(k, {})) for k, v in row.items()}
+                           for row in csv.DictReader(fh)]
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -69,30 +69,31 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
     def do_GET(self):
-        m = re.match(r"^/([a-z_]+)(?:/([^/?]+))?(?:\?(.*))?$", self.path)
+        m = re.match(r"^/([a-z_]+)/([a-z_]+)(?:/([^/?]+))?(?:\?(.*))?$", self.path)
         if not m:
-            return self._send(404, {"error": "bad path"})
-        table, rid, qs = m.group(1), m.group(2), m.group(3) or ""
-        if table not in TABLES:
-            return self._send(404, {"error": f"unknown collection '{table}'"})
-        rows = TABLES[table]
+            return self._send(404, {"error": "use /<domain>/<table>"})
+        key = f"{m.group(1)}/{m.group(2)}"
+        rid, qs = m.group(3), m.group(4) or ""
+        if key not in TABLES:
+            return self._send(404, {"error": f"unknown collection '{key}'"})
+        rows = TABLES[key]
         if rid is not None:
             for r in rows:
                 if str(r.get("id")) == rid:
                     return self._send(200, r)
-            return self._send(404, {"error": f"{table} id={rid} not found"})
+            return self._send(404, {"error": f"{key} id={rid} not found"})
         q = dict(p.split("=", 1) for p in qs.split("&") if "=" in p)
-        offset = int(q.get("offset", 0))
-        limit = int(q.get("limit", 50))
+        offset, limit = int(q.get("offset", 0)), int(q.get("limit", 50))
         return self._send(200, {"count": len(rows), "items": rows[offset:offset + limit]})
 
     def do_POST(self):
-        m = re.match(r"^/([a-z_]+)$", self.path)
-        if not m or m.group(1) not in TABLES:
+        m = re.match(r"^/([a-z_]+)/([a-z_]+)$", self.path)
+        key = f"{m.group(1)}/{m.group(2)}" if m else None
+        if key not in TABLES:
             return self._send(404, {"error": "unknown collection"})
         n = int(self.headers.get("Content-Length", 0) or 0)
         body = json.loads(self.rfile.read(n).decode() or "{}") if n else {}
-        TABLES[m.group(1)].append(body)
+        TABLES[key].append(body)
         return self._send(201, body)
 
     def log_message(self, *a):
