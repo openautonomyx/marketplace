@@ -46,6 +46,29 @@ Regenerate (after `../datasets/generate.py --domain marketing`):
 python3 generate_marketingcloud.py
 ```
 
+## Publish via API
+
+`publish.py` (stdlib only) authenticates with OAuth v2 and upserts the
+subscribers into a Data Extension via the async DE rows API:
+
+```bash
+export SFMC_SUBDOMAIN=...  SFMC_CLIENT_ID=...  SFMC_CLIENT_SECRET=...  SFMC_ACCOUNT_ID=...
+python3 publish.py --poll
+```
+The target DE must already exist (create it from `de-schema.json`).
+
+### Try it without credentials (local mock)
+
+`mock_sfmc.py` is a tiny local stand-in for the SFMC REST API — run the whole
+publish flow with **no API key**:
+
+```bash
+python3 mock_sfmc.py --port 8787 &                       # local fake SFMC
+SFMC_AUTH_URL="http://127.0.0.1:8787/v2/token" python3 publish.py --poll
+# -> upserts 200 rows; received/Subscribers.json shows exactly what landed
+```
+This exercises token → async DE upsert → status end to end (verified: 200/200).
+
 ## 1. Authenticate (OAuth 2.0 v2, server-to-server)
 
 ```bash

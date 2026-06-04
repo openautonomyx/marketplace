@@ -57,8 +57,10 @@ def env(name, default=None, required=False):
 
 
 def authenticate(subdomain, client_id, client_secret, account_id):
-    url = f"https://{subdomain}.auth.marketingcloudapis.com/v2/token"
-    body = {"grant_type": "client_credentials", "client_id": client_id, "client_secret": client_secret}
+    # SFMC_AUTH_URL lets you point at a mock/local endpoint (keyless demo); otherwise
+    # the real SFMC auth host is derived from the subdomain.
+    url = os.environ.get("SFMC_AUTH_URL") or f"https://{subdomain}.auth.marketingcloudapis.com/v2/token"
+    body = {"grant_type": "client_credentials", "client_id": client_id or "", "client_secret": client_secret or ""}
     if account_id:
         body["account_id"] = account_id
     status, data = _post(url, body, {})
@@ -74,10 +76,11 @@ def main():
     ap.add_argument("--payload", default=env("SFMC_PAYLOAD", os.path.join(HERE, "rest_payloads", "subscribers_rows.json")))
     args = ap.parse_args()
 
-    subdomain = env("SFMC_SUBDOMAIN", required=True)
+    mock = bool(os.environ.get("SFMC_AUTH_URL"))  # keyless/local demo mode
+    subdomain = env("SFMC_SUBDOMAIN", required=not mock)
     token, rest = authenticate(subdomain,
-                               env("SFMC_CLIENT_ID", required=True),
-                               env("SFMC_CLIENT_SECRET", required=True),
+                               env("SFMC_CLIENT_ID", required=not mock),
+                               env("SFMC_CLIENT_SECRET", required=not mock),
                                env("SFMC_ACCOUNT_ID"))
     auth = {"Authorization": f"Bearer {token}"}
     print(f">> authenticated; rest_instance_url={rest}")
