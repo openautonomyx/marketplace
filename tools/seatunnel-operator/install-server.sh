@@ -23,7 +23,10 @@
 # It is syntax-checked but must be run on a real server; review before use.
 set -euo pipefail
 
-HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Works both from a checkout and via `curl ... | bash` (no local files,
+# BASH_SOURCE unset). When run remotely, manifests are fetched from RAW_BASE.
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" 2>/dev/null && pwd || true)"
+RAW_BASE="${RAW_BASE:-https://raw.githubusercontent.com/openautonomyx/marketplace/claude/stoic-tesla-7gYOw/tools/seatunnel-operator}"
 MODE="${MODE:-local}"
 DASHBOARD="${DASHBOARD:-0}"
 IMAGE="${IMAGE:-seatunnel-operator:dev}"
@@ -31,6 +34,11 @@ RECONCILE_INTERVAL="${RECONCILE_INTERVAL:-15}"
 PREFIX="${PREFIX:-/opt/seatunnel-operator}"
 KUBECONFIG_PATH="/etc/rancher/k3s/k3s.yaml"
 DASHBOARD_URL="https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml"
+
+# Resolve a repo asset to a local path if present, else its RAW URL.
+asset() {
+  if [ -n "${HERE}" ] && [ -f "${HERE}/$1" ]; then printf '%s' "${HERE}/$1"; else printf '%s' "${RAW_BASE}/$1"; fi
+}
 
 # --- privilege helper -------------------------------------------------------
 SUDO=""
@@ -65,10 +73,16 @@ ${SUDO} ${KUBECTL} get nodes
 
 # --- 2) CRD -----------------------------------------------------------------
 echo ">> Installing the SeaTunnelJob CRD"
-${SUDO} ${KUBECTL} apply -f "${HERE}/crd.yaml"
+${SUDO} ${KUBECTL} apply -f "$(asset crd.yaml)"
 
 # --- 3) operator ------------------------------------------------------------
 if [ "${MODE}" = "in-cluster" ]; then
+  [ -n "${HERE}" ] && [ -f "${HERE}/Dockerfile" ] || {
+    echo "MODE=in-cluster needs a local checkout (Dockerfile + build context)."
+    echo "Clone the repo and run ./install-server.sh from tools/seatunnel-operator,"
+    echo "or use the default MODE=local which needs no image."
+    exit 1
+  }
   need podman || { echo "MODE=in-cluster needs podman (daemonless build)."; exit 1; }
   echo ">> Building operator image ${IMAGE} with podman"
   podman build -t "${IMAGE}" "${HERE}"
@@ -77,8 +91,8 @@ if [ "${MODE}" = "in-cluster" ]; then
   ${SUDO} k3s ctr images import /tmp/seatunnel-operator.tar
   rm -f /tmp/seatunnel-operator.tar
   echo ">> Applying RBAC + Deployment (pinned to the imported image)"
-  ${SUDO} ${KUBECTL} apply -f "${HERE}/rbac.yaml"
-  ${SUDO} ${KUBECTL} apply -f "${HERE}/deployment.yaml"
+  ${SUDO} ${KUBECTL} apply -f "$(asset rbac.yaml)"
+  ${SUDO} ${KUBECTL} apply -f "$(asset deployment.yaml)"
   ${SUDO} ${KUBECTL} -n seatunnel-system set image deployment/seatunnel-operator "operator=${IMAGE}"
   ${SUDO} ${KUBECTL} -n seatunnel-system patch deployment seatunnel-operator \
     --type json -p '[{"op":"replace","path":"/spec/template/spec/containers/0/imagePullPolicy","value":"IfNotPresent"}]'
@@ -88,7 +102,11 @@ else
   echo ">> Installing the operator as a host systemd service (no container)"
   need python3 || { echo "python3 is required for MODE=local."; exit 1; }
   ${SUDO} install -d "${PREFIX}"
-  ${SUDO} install -m 0644 "${HERE}/seatunnel_operator.py" "${PREFIX}/seatunnel_operator.py"
+  if [ -n "${HERE}" ] && [ -f "${HERE}/seatunnel_operator.py" ]; then
+    ${SUDO} install -m 0644 "${HERE}/seatunnel_operator.py" "${PREFIX}/seatunnel_operator.py"
+  else
+    curl -fsSL "${RAW_BASE}/seatunnel_operator.py" | ${SUDO} tee "${PREFIX}/seatunnel_operator.py" >/dev/null
+  fi
   ${SUDO} tee /etc/systemd/system/seatunnel-operator.service >/dev/null <<UNIT
 [Unit]
 Description=SeaTunnel Operator (reconciles SeaTunnelJob CRs into k8s Jobs)
@@ -116,7 +134,7 @@ fi
 if [ "${DASHBOARD}" = "1" ]; then
   echo ">> Installing the Kubernetes Dashboard + scoped access"
   ${SUDO} ${KUBECTL} apply -f "${DASHBOARD_URL}"
-  ${SUDO} ${KUBECTL} apply -f "${HERE}/dashboard.yaml"
+  ${SUDO} ${KUBECTL} apply -f "$(asset dashboard.yaml)"
   echo "   token:  ${SUDO} ${KUBECTL} -n kubernetes-dashboard create token dashboard-user"
   echo "   tunnel: ${SUDO} ${KUBECTL} -n kubernetes-dashboard port-forward --address 0.0.0.0 svc/kubernetes-dashboard 8443:443"
 fi
@@ -126,7 +144,7 @@ cat <<DONE
 >> Done.
    kubeconfig: ${KUBECONFIG_PATH}  (export KUBECONFIG=${KUBECONFIG_PATH})
    submit a pipeline:
-     ${SUDO} ${KUBECTL} apply -f ${HERE}/examples/salesforce-to-console.yaml
+     ${SUDO} ${KUBECTL} apply -f $(asset examples/salesforce-to-console.yaml)
      ${SUDO} ${KUBECTL} get seatunneljobs
 $( [ "${MODE}" = "local" ] && echo "   operator logs:  ${SUDO} journalctl -u seatunnel-operator -f" )
 $( [ "${MODE}" = "in-cluster" ] && echo "   operator logs:  ${SUDO} ${KUBECTL} -n seatunnel-system logs deploy/seatunnel-operator -f" )
