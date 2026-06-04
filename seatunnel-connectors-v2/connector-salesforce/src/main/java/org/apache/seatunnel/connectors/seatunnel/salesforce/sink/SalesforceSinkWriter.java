@@ -60,15 +60,32 @@ public class SalesforceSinkWriter implements SinkWriter<SeaTunnelRow, Void, Void
         if (buffer.isEmpty()) {
             return;
         }
+        int batchSize = buffer.size();
         List<Boolean> results = client.insert(config.getObject(), buffer, config.isAllOrNone());
+        // Clear before reacting to failures. With all_or_none=false Salesforce commits
+        // the successful records and rejects only the invalid ones, so the buffer must
+        // not be replayed by a retry/close() or those rows would be inserted twice. With
+        // all_or_none=true the whole batch is rolled back, so nothing was committed.
+        buffer.clear();
         long failed = results.stream().filter(success -> !success).count();
         if (failed > 0) {
-            throw new SalesforceConnectorException(
-                    SalesforceConnectorErrorCode.WRITE_FAILED,
-                    failed + " of " + buffer.size() + " records were rejected by Salesforce");
+            if (config.isAllOrNone()) {
+                // Atomic batch: any rejection rolls the entire batch back.
+                throw new SalesforceConnectorException(
+                        SalesforceConnectorErrorCode.WRITE_FAILED,
+                        failed + " of " + batchSize + " records were rejected by Salesforce; "
+                                + "the batch was rolled back (all_or_none=true)");
+            }
+            // Best-effort batch: the rejected rows are dropped, the rest are committed.
+            log.warn(
+                    "{} of {} records were rejected by Salesforce (all_or_none=false); "
+                            + "committed the remaining {}",
+                    failed,
+                    batchSize,
+                    batchSize - failed);
+            return;
         }
-        log.debug("Flushed {} records to Salesforce object {}", buffer.size(), config.getObject());
-        buffer.clear();
+        log.debug("Flushed {} records to Salesforce object {}", batchSize, config.getObject());
     }
 
     @Override

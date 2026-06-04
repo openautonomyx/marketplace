@@ -85,7 +85,10 @@ public final class SalesforceRowConverter {
                 case INT:
                     return (int) Double.parseDouble(String.valueOf(raw));
                 case BIGINT:
-                    return (long) Double.parseDouble(String.valueOf(raw));
+                    // Go through BigDecimal, not double: doubles lose precision above
+                    // 2^53, corrupting integral Number(18,0) values. longValueExact
+                    // also rejects fractional/overflowing inputs instead of truncating.
+                    return new BigDecimal(String.valueOf(raw)).longValueExact();
                 case FLOAT:
                     return Float.parseFloat(String.valueOf(raw));
                 case DOUBLE:

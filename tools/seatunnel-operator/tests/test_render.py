@@ -51,6 +51,15 @@ class TestSpecHash(unittest.TestCase):
         self.assertEqual(job, cm)
         self.assertEqual(job.rsplit("-", 1)[1], op.spec_hash(cr["spec"]))
 
+    def test_long_cr_name_stays_within_dns_label_limit(self):
+        cr = _cr()
+        cr["metadata"]["name"] = "a" * 200  # valid DNS subdomain, invalid as a label
+        job, cm = op._names(cr)
+        self.assertEqual(job, cm)
+        self.assertLessEqual(len(job), op.DNS_LABEL_MAX)
+        self.assertTrue(job.endswith("-" + op.spec_hash(cr["spec"])))
+        self.assertFalse(job.startswith("-"))
+
 
 class TestRenderConfigMap(unittest.TestCase):
     def test_shape(self):

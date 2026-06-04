@@ -47,6 +47,7 @@ KIND = "SeaTunnelJob"
 MANAGED_BY = "seatunnel-operator"
 CONFIG_FILE_NAME = "pipeline.conf"
 CONFIG_MOUNT_PATH = "/opt/seatunnel-job"
+DNS_LABEL_MAX = 63  # Kubernetes object names (Job/ConfigMap) are DNS labels.
 
 DEFAULT_RESOURCES = {
     "requests": {"cpu": "500m", "memory": "1Gi"},
@@ -91,10 +92,18 @@ def owner_reference(cr: dict[str, Any]) -> dict[str, Any]:
 
 
 def _names(cr: dict[str, Any]) -> tuple[str, str]:
-    """Return (job_name, configmap_name) derived from the CR name + spec hash."""
+    """Return (job_name, configmap_name) derived from the CR name + spec hash.
+
+    Job/ConfigMap names are DNS labels capped at 63 chars. A SeaTunnelJob CR name
+    may be a DNS *subdomain* (up to 253 chars), so the base is truncated to leave
+    room for ``-<hash>`` and keep the result a valid label.
+    """
     base = cr["metadata"]["name"]
     h = spec_hash(cr["spec"])
-    return f"{base}-{h}", f"{base}-{h}"
+    keep = DNS_LABEL_MAX - len(h) - 1  # room for the "-" separator
+    trimmed = base[:keep].rstrip("-.") or base[:1]
+    name = f"{trimmed}-{h}"
+    return name, name
 
 
 def _common_labels(cr: dict[str, Any]) -> dict[str, str]:
