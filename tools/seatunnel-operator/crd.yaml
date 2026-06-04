@@ -1,0 +1,89 @@
+# CustomResourceDefinition for SeaTunnelJob.
+#
+# A SeaTunnelJob is a declarative request to run a SeaTunnel pipeline (any
+# connector) as a Kubernetes batch Job. The seatunnel-operator watches these
+# resources and reconciles each one into a ConfigMap (holding the pipeline
+# config) plus a Job that runs `seatunnel.sh` against it.
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: seatunneljobs.marketplace.openautonomyx.io
+spec:
+  group: marketplace.openautonomyx.io
+  scope: Namespaced
+  names:
+    kind: SeaTunnelJob
+    listKind: SeaTunnelJobList
+    plural: seatunneljobs
+    singular: seatunneljob
+    shortNames:
+      - stj
+  versions:
+    - name: v1alpha1
+      served: true
+      storage: true
+      subresources:
+        status: {}
+      additionalPrinterColumns:
+        - name: Phase
+          type: string
+          jsonPath: .status.phase
+        - name: Job
+          type: string
+          jsonPath: .status.jobName
+        - name: Age
+          type: date
+          jsonPath: .metadata.creationTimestamp
+      schema:
+        openAPIV3Schema:
+          type: object
+          required: [spec]
+          properties:
+            spec:
+              type: object
+              required: [image, config]
+              properties:
+                image:
+                  type: string
+                  description: Container image that bundles the SeaTunnel runtime and the needed connector jars.
+                engine:
+                  type: string
+                  description: SeaTunnel execution engine flag passed to seatunnel.sh (-e).
+                  enum: [local, cluster]
+                  default: local
+                config:
+                  type: string
+                  description: The full SeaTunnel pipeline config (HOCON), mounted as a file and passed via --config.
+                secretRef:
+                  type: string
+                  description: Optional name of a Secret in the same namespace; its keys are injected as env vars (envFrom).
+                backoffLimit:
+                  type: integer
+                  default: 1
+                  minimum: 0
+                activeDeadlineSeconds:
+                  type: integer
+                  description: Hard wall-clock limit for the Job; the operator also surfaces timeouts in status.
+                  minimum: 1
+                resources:
+                  type: object
+                  description: Standard Kubernetes resource requests/limits for the SeaTunnel container.
+                  x-kubernetes-preserve-unknown-fields: true
+            status:
+              type: object
+              x-kubernetes-preserve-unknown-fields: true
+              properties:
+                phase:
+                  type: string
+                  description: One of Pending, Running, Succeeded, Failed.
+                jobName:
+                  type: string
+                configHash:
+                  type: string
+                  description: Hash of the reconciled spec; a change triggers a re-roll of the Job.
+                message:
+                  type: string
+                observedGeneration:
+                  type: integer
+                lastTransitionTime:
+                  type: string

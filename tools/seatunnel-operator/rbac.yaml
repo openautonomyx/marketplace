@@ -1,0 +1,47 @@
+# RBAC for the seatunnel-operator: a ServiceAccount plus the cluster-wide
+# permissions it needs to watch SeaTunnelJob CRs and manage the Jobs/ConfigMaps
+# it materializes from them.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: seatunnel-system
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: seatunnel-operator
+  namespace: seatunnel-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: seatunnel-operator
+rules:
+  - apiGroups: ["marketplace.openautonomyx.io"]
+    resources: ["seatunneljobs"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["marketplace.openautonomyx.io"]
+    resources: ["seatunneljobs/status"]
+    verbs: ["get", "update", "patch"]
+  - apiGroups: ["batch"]
+    resources: ["jobs"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: [""]
+    resources: ["pods", "pods/log"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: seatunnel-operator
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: seatunnel-operator
+subjects:
+  - kind: ServiceAccount
+    name: seatunnel-operator
+    namespace: seatunnel-system

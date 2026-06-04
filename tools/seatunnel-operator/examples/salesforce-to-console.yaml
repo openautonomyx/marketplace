@@ -1,0 +1,63 @@
+# A sample SeaTunnelJob that runs the Salesforce -> Console pipeline as a Job.
+# The image must bundle connector-salesforce (see
+# seatunnel-connectors-v2/connector-salesforce/deploy/microk8s/README.md for how
+# to build such an overlay image). Credentials come from the referenced Secret.
+apiVersion: v1
+kind: Secret
+metadata:
+  name: salesforce-credentials
+  namespace: default
+type: Opaque
+stringData:
+  # Replace before applying, or create out-of-band with `kubectl create secret`.
+  SALESFORCE_CLIENT_ID: "REPLACE_ME"
+  SALESFORCE_CLIENT_SECRET: "REPLACE_ME"
+  SALESFORCE_USERNAME: "REPLACE_ME"
+  SALESFORCE_PASSWORD: "REPLACE_ME"
+  SALESFORCE_SECURITY_TOKEN: "REPLACE_ME"
+---
+apiVersion: marketplace.openautonomyx.io/v1alpha1
+kind: SeaTunnelJob
+metadata:
+  name: salesforce-to-console
+  namespace: default
+spec:
+  image: localhost:32000/seatunnel-salesforce:dev
+  engine: local
+  secretRef: salesforce-credentials
+  backoffLimit: 1
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "1Gi"
+    limits:
+      cpu: "1"
+      memory: "2Gi"
+  config: |
+    env {
+      parallelism = 1
+      job.mode = "BATCH"
+    }
+    source {
+      Salesforce {
+        url = "https://login.salesforce.com"
+        client_id = "${SALESFORCE_CLIENT_ID}"
+        client_secret = "${SALESFORCE_CLIENT_SECRET}"
+        username = "${SALESFORCE_USERNAME}"
+        password = "${SALESFORCE_PASSWORD}"
+        security_token = "${SALESFORCE_SECURITY_TOKEN}"
+        version = "59.0"
+        query = "SELECT Id, Name, Industry, AnnualRevenue FROM Account"
+        schema = {
+          fields {
+            Id = string
+            Name = string
+            Industry = string
+            AnnualRevenue = double
+          }
+        }
+      }
+    }
+    sink {
+      Console {}
+    }

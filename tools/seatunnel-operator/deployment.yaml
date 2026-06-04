@@ -1,0 +1,39 @@
+# Runs the operator in-cluster. Build/push the image from the Dockerfile in this
+# directory first (see README). The operator only needs `kubectl` on PATH and
+# operator.py; it talks to the API server using its ServiceAccount token.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: seatunnel-operator
+  namespace: seatunnel-system
+  labels:
+    app.kubernetes.io/name: seatunnel-operator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: seatunnel-operator
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: seatunnel-operator
+    spec:
+      serviceAccountName: seatunnel-operator
+      containers:
+        - name: operator
+          image: localhost:32000/seatunnel-operator:dev
+          imagePullPolicy: IfNotPresent
+          command: ["python3", "/app/seatunnel_operator.py", "run"]
+          env:
+            # Leave WATCH_NAMESPACE empty to watch all namespaces.
+            - name: WATCH_NAMESPACE
+              value: ""
+            - name: RECONCILE_INTERVAL
+              value: "15"
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "250m"
+              memory: "128Mi"
