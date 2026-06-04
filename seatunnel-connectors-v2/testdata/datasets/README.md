@@ -13,6 +13,7 @@ a `seed.sql` of INSERTs. All foreign keys resolve (verified).
 | `banking` | branches → customers → accounts → transactions |
 | `iot` | sites → devices → sensors → readings |
 | `saas` | accounts → users, accounts → subscriptions → invoices |
+| `marketing` | campaigns, leads → email_events, web_sessions, ad_spend (funnel: SENT→OPEN→CLICK) |
 
 ## Generate
 

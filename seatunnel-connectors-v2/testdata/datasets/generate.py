@@ -235,6 +235,76 @@ def saas(rng, scale):
 
 
 # --------------------------------------------------------------------------- #
+# marketing
+# --------------------------------------------------------------------------- #
+@domain("""CREATE TABLE campaigns (
+    id BIGINT PRIMARY KEY, name VARCHAR(120) NOT NULL, channel VARCHAR(20) NOT NULL,
+    start_date DATE NOT NULL, end_date DATE NOT NULL, budget NUMERIC(12,2) NOT NULL);
+CREATE TABLE leads (
+    id BIGINT PRIMARY KEY, name VARCHAR(120) NOT NULL, email VARCHAR(160) NOT NULL UNIQUE,
+    source VARCHAR(20) NOT NULL, country CHAR(2) NOT NULL, status VARCHAR(16) NOT NULL, created_at TIMESTAMPTZ NOT NULL);
+CREATE TABLE email_events (
+    id BIGINT PRIMARY KEY, campaign_id BIGINT NOT NULL REFERENCES campaigns(id),
+    lead_id BIGINT NOT NULL REFERENCES leads(id), event_type VARCHAR(12) NOT NULL, ts TIMESTAMPTZ NOT NULL);
+CREATE TABLE web_sessions (
+    id BIGINT PRIMARY KEY, lead_id BIGINT NOT NULL REFERENCES leads(id), ts TIMESTAMPTZ NOT NULL,
+    source VARCHAR(20) NOT NULL, medium VARCHAR(20) NOT NULL, pageviews INTEGER NOT NULL, duration_sec INTEGER NOT NULL);
+CREATE TABLE ad_spend (
+    id BIGINT PRIMARY KEY, campaign_id BIGINT NOT NULL REFERENCES campaigns(id), spend_date DATE NOT NULL,
+    impressions INTEGER NOT NULL, clicks INTEGER NOT NULL, spend NUMERIC(10,2) NOT NULL);
+""")
+def marketing(rng, scale):
+    channels = ["Email", "Paid Search", "Social", "Display", "Referral", "Organic"]
+    sources = ["webform", "event", "referral", "ads", "organic"]
+    mediums = ["cpc", "email", "social", "organic", "referral"]
+    statuses = ["NEW", "MQL", "SQL", "CUSTOMER", "DISQUALIFIED"]
+    events = ["SENT", "OPEN", "CLICK", "BOUNCE", "UNSUBSCRIBE"]
+
+    campaigns = []
+    for i in range(1, 20 * scale + 1):
+        start = ts(rng, days=300)
+        campaigns.append({"id": i, "name": f"{rng.choice(channels)} {start.strftime('%b%Y')} #{i}",
+                          "channel": rng.choice(channels), "start_date": start.strftime("%Y-%m-%d"),
+                          "end_date": (start + timedelta(days=rng.randint(7, 90))).strftime("%Y-%m-%d"),
+                          "budget": round(rng.uniform(1000, 100000), 2)})
+    leads = [{"id": i, "name": name(rng), "email": f"lead{i}@example.com", "source": rng.choice(sources),
+              "country": rng.choice(COUNTRIES), "status": rng.choice(statuses), "created_at": iso(ts(rng))}
+             for i in range(1, 200 * scale + 1)]
+
+    email_events, web_sessions, ad_spend = [], [], []
+    eid = sid = aid = 0
+    for c in campaigns:
+        # each campaign emails a random subset of leads through a funnel
+        for ld in rng.sample(leads, k=min(rng.randint(20, 60), len(leads))):
+            funnel = ["SENT"]
+            if rng.random() > 0.4:
+                funnel.append("OPEN")
+                if rng.random() > 0.6:
+                    funnel.append("CLICK")
+            if rng.random() > 0.9:
+                funnel.append(rng.choice(["BOUNCE", "UNSUBSCRIBE"]))
+            for et in funnel:
+                eid += 1
+                email_events.append({"id": eid, "campaign_id": c["id"], "lead_id": ld["id"],
+                                     "event_type": et, "ts": iso(ts(rng))})
+        # daily ad spend rows for the campaign
+        for _ in range(rng.randint(3, 10)):
+            aid += 1
+            impr = rng.randint(500, 50000)
+            clicks = int(impr * rng.uniform(0.005, 0.06))
+            ad_spend.append({"id": aid, "campaign_id": c["id"], "spend_date": ts(rng, days=300).strftime("%Y-%m-%d"),
+                             "impressions": impr, "clicks": clicks, "spend": round(clicks * rng.uniform(0.3, 3.5), 2)})
+    for ld in leads:
+        for _ in range(rng.randint(0, 4)):
+            sid += 1
+            web_sessions.append({"id": sid, "lead_id": ld["id"], "ts": iso(ts(rng)),
+                                 "source": rng.choice(sources), "medium": rng.choice(mediums),
+                                 "pageviews": rng.randint(1, 25), "duration_sec": rng.randint(5, 1800)})
+    return {"campaigns": campaigns, "leads": leads, "email_events": email_events,
+            "web_sessions": web_sessions, "ad_spend": ad_spend}
+
+
+# --------------------------------------------------------------------------- #
 # writers
 # --------------------------------------------------------------------------- #
 def sql_value(v):
