@@ -112,7 +112,74 @@ def main():
         json.dump(payload, fh, indent=2)
         fh.write("\n")
 
-    print(f"Subscribers={len(subs)} Campaigns={len(campaigns)}")
+    # --- Sends / _Job (one aggregate row per campaign send) ---------------- #
+    from collections import defaultdict
+    by_send = defaultdict(lambda: defaultdict(int))
+    sent_dates = defaultdict(list)
+    for e in events:
+        by_send[e["campaign_id"]][e["event_type"]] += 1
+        if e["event_type"] == "SENT":
+            sent_dates[e["campaign_id"]].append(e["ts"])
+    camp_by_id = {c["id"]: c for c in campaigns}
+    subjects = ["Don't miss out", "Your weekly update", "A special offer inside",
+                "We saved your seat", "New features just dropped"]
+    jobs = []
+    for cid in sorted(by_send, key=int):
+        ct = by_send[cid]
+        sent_n = ct["SENT"]
+        jobs.append({
+            "SendID": cid, "EmailName": camp_by_id.get(cid, {}).get("name", f"Send {cid}"),
+            "SubjectLine": rng.choice(subjects),
+            "SendDate": min(sent_dates[cid]) if sent_dates[cid] else "",
+            "NumberSent": sent_n, "NumberDelivered": sent_n - ct["BOUNCE"], "NumberBounced": ct["BOUNCE"],
+            "NumberOpened": ct["OPEN"], "NumberClicked": ct["CLICK"], "NumberUnsubscribed": ct["UNSUBSCRIBE"],
+        })
+    write_csv(os.path.join(DV, "_Job.csv"),
+              ["SendID", "EmailName", "SubjectLine", "SendDate", "NumberSent", "NumberDelivered",
+               "NumberBounced", "NumberOpened", "NumberClicked", "NumberUnsubscribed"], jobs)
+
+    # --- _Complaint (spam complaints: a small fraction of opens) ----------- #
+    complaints = [{"SendID": o["SendID"], "SubscriberKey": o["SubscriberKey"], "EventDate": o["EventDate"]}
+                  for o in views["_Open"] if rng.random() < 0.02]
+    write_csv(os.path.join(DV, "_Complaint.csv"), ["SendID", "SubscriberKey", "EventDate"], complaints)
+
+    # --- Lists + _ListSubscribers ------------------------------------------ #
+    lists = [{"ListID": 1, "ListName": "All Subscribers", "Type": "Public"},
+             {"ListID": 2, "ListName": "Newsletter", "Type": "Public"},
+             {"ListID": 3, "ListName": "Product Updates", "Type": "Public"}]
+    write_csv(os.path.join(DE, "Lists.csv"), ["ListID", "ListName", "Type"], lists)
+    list_subs = []
+    for s in subs:
+        memberships = [1] + [l["ListID"] for l in lists[1:] if rng.random() > 0.5]
+        for lid in memberships:
+            list_subs.append({"ListID": lid, "SubscriberKey": s["SubscriberKey"],
+                              "Status": s["Status"], "DateJoined": s["DateCreated"]})
+    write_csv(os.path.join(DV, "_ListSubscribers.csv"),
+              ["ListID", "SubscriberKey", "Status", "DateJoined"], list_subs)
+
+    # --- Journey Builder: Journeys, JourneyActivities, _Journey entries ----- #
+    jnames = ["Welcome Series", "Abandoned Cart", "Re-engagement", "Onboarding"]
+    act_seq = ["EMAIL", "WAIT", "DECISION", "EMAIL"]
+    journeys, activities, entries = [], [], []
+    act_id = 0
+    for jid, jn in enumerate(jnames, start=1):
+        journeys.append({"JourneyId": jid, "Name": jn, "Status": rng.choice(["Published", "Draft", "Stopped"]),
+                         "Version": 1, "CreatedDate": rng.choice(subs)["DateCreated"]})
+        for order, atype in enumerate(act_seq, start=1):
+            act_id += 1
+            activities.append({"ActivityId": act_id, "JourneyId": jid, "Sequence": order,
+                               "ActivityType": atype, "Name": f"{atype.title()} {order}"})
+        for s in rng.sample(subs, k=min(rng.randint(20, 60), len(subs))):
+            entries.append({"VersionID": jid, "ContactKey": s["SubscriberKey"],
+                            "JourneyName": jn, "EntryDate": s["DateCreated"]})
+    write_csv(os.path.join(DE, "Journeys.csv"), ["JourneyId", "Name", "Status", "Version", "CreatedDate"], journeys)
+    write_csv(os.path.join(DE, "JourneyActivities.csv"),
+              ["ActivityId", "JourneyId", "Sequence", "ActivityType", "Name"], activities)
+    write_csv(os.path.join(DV, "_Journey.csv"), ["VersionID", "ContactKey", "JourneyName", "EntryDate"], entries)
+
+    print(f"Subscribers={len(subs)} Campaigns={len(campaigns)} Sends={len(jobs)} "
+          f"Lists={len(lists)} ListSubscribers={len(list_subs)} Journeys={len(journeys)} "
+          f"JourneyActivities={len(activities)} JourneyEntries={len(entries)} Complaints={len(complaints)}")
     for name, rows in views.items():
         print(f"{name:14} {len(rows)}")
     print(f"rest_payloads/subscribers_rows.json ({len(subs)} items)")

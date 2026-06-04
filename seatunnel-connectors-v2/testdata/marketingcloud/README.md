@@ -16,12 +16,30 @@ marketingcloud/
 ├── de-schema.json                     # Subscribers Data Extension field definitions
 ├── data_extensions/
 │   ├── Subscribers.csv                # sendable contact DE (SubscriberKey, EmailAddress, ...)
-│   └── Campaigns.csv                  # campaign reference DE
+│   ├── Campaigns.csv                  # campaign reference DE
+│   ├── Lists.csv                      # subscriber lists
+│   ├── Journeys.csv                   # Journey Builder journeys
+│   └── JourneyActivities.csv          # activities per journey (EMAIL/WAIT/DECISION)
 ├── data_views/                        # mirror SFMC system data views (Automation Studio SQL)
 │   ├── _Sent.csv  _Open.csv  _Click.csv  _Bounce.csv  _Unsubscribe.csv
+│   ├── _Job.csv                       # send aggregates (NumberSent/Delivered/Opened/...)
+│   ├── _Complaint.csv                 # spam complaints
+│   ├── _ListSubscribers.csv           # list membership
+│   └── _Journey.csv                   # journey entries (VersionID, ContactKey, EntryDate)
 └── rest_payloads/
     └── subscribers_rows.json          # REST async DE upsert body {"items":[...]}
 ```
+
+### Objects / models
+
+| Object | Kind | Maps from |
+| ------ | ---- | --------- |
+| `Subscribers` | sendable DE | leads |
+| `Campaigns` | DE | campaigns |
+| `Lists` + `_ListSubscribers` | DE + data view | derived list membership |
+| `Journeys` + `JourneyActivities` + `_Journey` | Journey Builder | derived journeys/entries |
+| `_Job` | send data view | email_events aggregated per send |
+| `_Sent/_Open/_Click/_Bounce/_Unsubscribe/_Complaint` | tracking data views | email_events split by type |
 
 Regenerate (after `../datasets/generate.py --domain marketing`):
 ```bash

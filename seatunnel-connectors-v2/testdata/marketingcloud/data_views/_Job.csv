@@ -1,0 +1,21 @@
+SendID,EmailName,SubjectLine,SendDate,NumberSent,NumberDelivered,NumberBounced,NumberOpened,NumberClicked,NumberUnsubscribed
+1,Organic May2023 #1,New features just dropped,2023-01-02 21:46:00+0000,40,38,2,26,16,1
+2,Display Sep2023 #2,We saved your seat,2023-01-02 21:14:00+0000,48,47,1,31,14,2
+3,Referral Jul2023 #3,New features just dropped,2023-01-21 23:10:00+0000,33,30,3,19,9,3
+4,Referral Feb2023 #4,New features just dropped,2023-01-22 03:55:00+0000,35,34,1,21,13,2
+5,Email Jan2023 #5,Your weekly update,2023-01-01 07:10:00+0000,41,39,2,24,13,2
+6,Referral Sep2023 #6,Don't miss out,2023-02-09 06:44:00+0000,24,23,1,15,6,2
+7,Organic Jun2023 #7,New features just dropped,2023-01-09 17:31:00+0000,49,42,7,30,17,0
+8,Paid Search Jan2023 #8,Don't miss out,2023-01-14 20:37:00+0000,42,37,5,28,15,2
+9,Display Jan2023 #9,Your weekly update,2023-01-05 15:47:00+0000,23,22,1,14,6,1
+10,Email Sep2023 #10,Don't miss out,2023-01-08 18:40:00+0000,59,57,2,34,17,4
+11,Social Oct2023 #11,New features just dropped,2023-01-01 11:07:00+0000,37,33,4,25,6,3
+12,Display May2023 #12,Don't miss out,2023-01-05 22:12:00+0000,35,31,4,22,6,4
+13,Display Aug2023 #13,Your weekly update,2023-01-09 01:10:00+0000,24,23,1,9,4,1
+14,Email Jun2023 #14,We saved your seat,2023-01-09 02:49:00+0000,22,20,2,9,4,2
+15,Paid Search May2023 #15,Don't miss out,2023-01-01 05:28:00+0000,31,31,0,21,10,0
+16,Organic Jul2023 #16,New features just dropped,2023-01-19 03:37:00+0000,56,54,2,35,13,3
+17,Social Sep2023 #17,Your weekly update,2023-01-04 12:30:00+0000,55,55,0,34,14,4
+18,Organic May2023 #18,New features just dropped,2023-01-14 15:50:00+0000,40,38,2,24,6,2
+19,Social Jan2023 #19,New features just dropped,2023-01-09 05:12:00+0000,33,32,1,17,6,0
+20,Paid Search Aug2023 #20,Don't miss out,2023-01-03 14:28:00+0000,52,52,0,29,10,3
