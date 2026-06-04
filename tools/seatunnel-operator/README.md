@@ -139,6 +139,44 @@ KUBECTL="microk8s kubectl" python3 tools/seatunnel-operator/seatunnel_operator.p
 | `activeDeadlineSeconds` | no | Hard wall-clock limit for the Job |
 | `resources` | no | Container resource requests/limits |
 
+## Rootless Podman gotchas
+
+The daemonless path (kind/minikube on rootless Podman) occasionally needs host
+tuning. The usual suspects:
+
+- **cgroup v2 + systemd delegation.** Rootless needs delegated controllers, or
+  the kubelet fails to start. Check `cat /sys/fs/cgroup/cgroup.controllers` shows
+  `cpu memory pids`; if not, enable delegation:
+  ```bash
+  sudo mkdir -p /etc/systemd/system/user@.service.d
+  printf '[Service]\nDelegate=cpu cpuset io memory pids\n' | \
+    sudo tee /etc/systemd/system/user@.service.d/delegate.conf
+  sudo systemctl daemon-reload   # then log out/in
+  ```
+- **subuid/subgid ranges.** Rootless user namespaces need a range (~65k). Verify
+  with `grep "$USER" /etc/subuid /etc/subgid`; if missing,
+  `sudo usermod --add-subuids 100000-165535 --add-subgids 100000-165535 "$USER"`
+  then `podman system migrate`.
+- **inotify limits.** Many pods exhaust the defaults — symptom is pods stuck
+  `ContainerCreating` or the kubelet logging `too many open files`:
+  ```bash
+  sudo sysctl -w fs.inotify.max_user_instances=8192 fs.inotify.max_user_watches=524288
+  ```
+- **kind + Podman provider.** The script exports `KIND_EXPERIMENTAL_PROVIDER=podman`
+  for you. Rootless kind also wants `kernel.unprivileged_userns_clone=1` on older
+  distros, and SELinux hosts may need `--security-opt label=disable` semantics
+  (kind handles this, but custom mounts may not).
+- **minikube + Podman is rootful by default.** `--driver=podman` uses rootful
+  Podman unless you pass `--container-runtime=cri-o` / configure rootless; for a
+  fully rootless run prefer kind.
+- **Loading images rootless.** `kind load docker-image` can choke on rootless
+  Podman, so for `MODE=in-cluster` the script uses `podman save` →
+  `kind load image-archive` instead.
+
+When in doubt, the *most* robust daemonless option is to skip in-cluster
+entirely: run the operator as a host process (`MODE=local`, the default) and let
+only the SeaTunnel Job pods land in the cluster.
+
 ## Scope / notes
 
 - Batch pipelines (`job.mode = "BATCH"`); the status maps a Job's `Complete`/`Failed`
