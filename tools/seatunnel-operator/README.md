@@ -51,6 +51,24 @@ python3 -m unittest discover -s tests -v
 python3 seatunnel_operator.py render --cr my-seatunneljob.json
 ```
 
+## Install on a server
+
+[`install-server.sh`](install-server.sh) provisions a single Linux server end to
+end: it installs **k3s** (single-binary Kubernetes, systemd service, bundled
+containerd — **no Docker daemon**), installs the CRD, and runs the operator. By
+default the operator runs as its own **systemd unit** (a host process — no
+container daemon, reboot-safe); `MODE=in-cluster` builds the image with Podman
+and deploys it instead.
+
+```bash
+sudo ./tools/seatunnel-operator/install-server.sh                 # k3s + operator as a systemd service
+sudo DASHBOARD=1 ./tools/seatunnel-operator/install-server.sh     # also the Kubernetes Dashboard
+sudo MODE=in-cluster ./tools/seatunnel-operator/install-server.sh # operator as an in-cluster Deployment
+```
+
+Requires a real Linux host with systemd (it won't run inside a non-systemd
+container). After it finishes, `export KUBECONFIG=/etc/rancher/k3s/k3s.yaml`.
+
 ## Quickstart on a local cluster (daemonless / no Docker)
 
 `quickstart-local.sh` stands up a throwaway cluster and wires up the operator.
