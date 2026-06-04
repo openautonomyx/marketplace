@@ -58,10 +58,8 @@ python3 seatunnel_operator.py render --cr my-seatunneljob.json
 docker build -t localhost:32000/seatunnel-operator:dev tools/seatunnel-operator
 docker push localhost:32000/seatunnel-operator:dev
 
-# 1) install the CRD, RBAC, and the operator
-microk8s kubectl apply -f tools/seatunnel-operator/crd.yaml
-microk8s kubectl apply -f tools/seatunnel-operator/rbac.yaml
-microk8s kubectl apply -f tools/seatunnel-operator/deployment.yaml
+# 1) install the CRD, RBAC, and the operator — one bundled manifest
+microk8s kubectl apply -f tools/seatunnel-operator/install.yaml
 
 # 2) submit a pipeline (edit the image + secret first)
 microk8s kubectl apply -f tools/seatunnel-operator/examples/salesforce-to-console.yaml
@@ -70,6 +68,10 @@ microk8s kubectl apply -f tools/seatunnel-operator/examples/salesforce-to-consol
 microk8s kubectl get seatunneljobs
 microk8s kubectl logs job/$(microk8s kubectl get stj salesforce-to-console -o jsonpath='{.status.jobName}')
 ```
+
+`install.yaml` is a single-file bundle of `crd.yaml` + `rbac.yaml` +
+`deployment.yaml` (apply the parts individually if you prefer). On any other
+cluster, swap `microk8s kubectl` for `kubectl`.
 
 > The image referenced by `spec.image` must bundle the SeaTunnel runtime **and**
 > the connector jars the pipeline uses. For the Salesforce example, build the

@@ -1,0 +1,190 @@
+# seatunnel-operator — single-file install bundle.
+#
+# Aggregates crd.yaml + rbac.yaml + deployment.yaml in apply order:
+# CRD, then Namespace/ServiceAccount/RBAC, then the operator Deployment.
+# Generated; edit the source files and regenerate rather than editing here.
+#
+# Install:
+#   kubectl apply -f install.yaml
+#   kubectl apply -f examples/salesforce-to-console.yaml   # submit a pipeline
+#
+# The Deployment image is localhost:32000/seatunnel-operator:dev — build/push it
+# (see README) or edit it to point at your registry before applying.
+---
+# CustomResourceDefinition for SeaTunnelJob.
+#
+# A SeaTunnelJob is a declarative request to run a SeaTunnel pipeline (any
+# connector) as a Kubernetes batch Job. The seatunnel-operator watches these
+# resources and reconciles each one into a ConfigMap (holding the pipeline
+# config) plus a Job that runs `seatunnel.sh` against it.
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: seatunneljobs.marketplace.openautonomyx.io
+spec:
+  group: marketplace.openautonomyx.io
+  scope: Namespaced
+  names:
+    kind: SeaTunnelJob
+    listKind: SeaTunnelJobList
+    plural: seatunneljobs
+    singular: seatunneljob
+    shortNames:
+      - stj
+  versions:
+    - name: v1alpha1
+      served: true
+      storage: true
+      subresources:
+        status: {}
+      additionalPrinterColumns:
+        - name: Phase
+          type: string
+          jsonPath: .status.phase
+        - name: Job
+          type: string
+          jsonPath: .status.jobName
+        - name: Age
+          type: date
+          jsonPath: .metadata.creationTimestamp
+      schema:
+        openAPIV3Schema:
+          type: object
+          required: [spec]
+          properties:
+            spec:
+              type: object
+              required: [image, config]
+              properties:
+                image:
+                  type: string
+                  description: Container image that bundles the SeaTunnel runtime and the needed connector jars.
+                engine:
+                  type: string
+                  description: SeaTunnel execution engine flag passed to seatunnel.sh (-e).
+                  enum: [local, cluster]
+                  default: local
+                config:
+                  type: string
+                  description: The full SeaTunnel pipeline config (HOCON), mounted as a file and passed via --config.
+                secretRef:
+                  type: string
+                  description: Optional name of a Secret in the same namespace; its keys are injected as env vars (envFrom).
+                backoffLimit:
+                  type: integer
+                  default: 1
+                  minimum: 0
+                activeDeadlineSeconds:
+                  type: integer
+                  description: Hard wall-clock limit for the Job; the operator also surfaces timeouts in status.
+                  minimum: 1
+                resources:
+                  type: object
+                  description: Standard Kubernetes resource requests/limits for the SeaTunnel container.
+                  x-kubernetes-preserve-unknown-fields: true
+            status:
+              type: object
+              x-kubernetes-preserve-unknown-fields: true
+              properties:
+                phase:
+                  type: string
+                  description: One of Pending, Running, Succeeded, Failed.
+                jobName:
+                  type: string
+                configHash:
+                  type: string
+                  description: Hash of the reconciled spec; a change triggers a re-roll of the Job.
+                message:
+                  type: string
+                observedGeneration:
+                  type: integer
+                lastTransitionTime:
+                  type: string
+---
+# RBAC for the seatunnel-operator: a ServiceAccount plus the cluster-wide
+# permissions it needs to watch SeaTunnelJob CRs and manage the Jobs/ConfigMaps
+# it materializes from them.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: seatunnel-system
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: seatunnel-operator
+  namespace: seatunnel-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: seatunnel-operator
+rules:
+  - apiGroups: ["marketplace.openautonomyx.io"]
+    resources: ["seatunneljobs"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["marketplace.openautonomyx.io"]
+    resources: ["seatunneljobs/status"]
+    verbs: ["get", "update", "patch"]
+  - apiGroups: ["batch"]
+    resources: ["jobs"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: [""]
+    resources: ["pods", "pods/log"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: seatunnel-operator
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: seatunnel-operator
+subjects:
+  - kind: ServiceAccount
+    name: seatunnel-operator
+    namespace: seatunnel-system
+---
+# Runs the operator in-cluster. Build/push the image from the Dockerfile in this
+# directory first (see README). The operator only needs `kubectl` on PATH and
+# operator.py; it talks to the API server using its ServiceAccount token.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: seatunnel-operator
+  namespace: seatunnel-system
+  labels:
+    app.kubernetes.io/name: seatunnel-operator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: seatunnel-operator
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: seatunnel-operator
+    spec:
+      serviceAccountName: seatunnel-operator
+      containers:
+        - name: operator
+          image: localhost:32000/seatunnel-operator:dev
+          imagePullPolicy: IfNotPresent
+          command: ["python3", "/app/seatunnel_operator.py", "run"]
+          env:
+            # Leave WATCH_NAMESPACE empty to watch all namespaces.
+            - name: WATCH_NAMESPACE
+              value: ""
+            - name: RECONCILE_INTERVAL
+              value: "15"
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "250m"
+              memory: "128Mi"
