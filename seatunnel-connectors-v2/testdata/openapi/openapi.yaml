@@ -1,0 +1,1634 @@
+openapi: 3.0.3
+info:
+  title: Marketplace Test Data API
+  version: 1.0.0
+  description: REST contract over the multi-domain test datasets (ecommerce, healthcare, banking, iot,
+    saas, marketing).
+servers:
+- url: https://api.example.com/v1
+paths:
+  /accounts:
+    get:
+      summary: List accounts
+      tags:
+      - accounts
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: &id001
+                  $ref: '#/components/schemas/Accounts'
+    post:
+      summary: Create a Accounts
+      tags:
+      - accounts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: *id001
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: *id001
+  /accounts/{id}:
+    get:
+      summary: Get a Accounts by id
+      tags:
+      - accounts
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: *id001
+        '404':
+          description: Not found
+  /ad_spend:
+    get:
+      summary: List ad_spend
+      tags:
+      - ad_spend
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: &id002
+                  $ref: '#/components/schemas/AdSpend'
+    post:
+      summary: Create a AdSpend
+      tags:
+      - ad_spend
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: *id002
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: *id002
+  /ad_spend/{id}:
+    get:
+      summary: Get a AdSpend by id
+      tags:
+      - ad_spend
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: *id002
+        '404':
+          description: Not found
+  /branches:
+    get:
+      summary: List branches
+      tags:
+      - branches
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: &id003
+                  $ref: '#/components/schemas/Branches'
+    post:
+      summary: Create a Branches
+      tags:
+      - branches
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: *id003
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: *id003
+  /branches/{id}:
+    get:
+      summary: Get a Branches by id
+      tags:
+      - branches
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: *id003
+        '404':
+          description: Not found
+  /campaigns:
+    get:
+      summary: List campaigns
+      tags:
+      - campaigns
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: &id004
+                  $ref: '#/components/schemas/Campaigns'
+    post:
+      summary: Create a Campaigns
+      tags:
+      - campaigns
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: *id004
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: *id004
+  /campaigns/{id}:
+    get:
+      summary: Get a Campaigns by id
+      tags:
+      - campaigns
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: *id004
+        '404':
+          description: Not found
+  /customers:
+    get:
+      summary: List customers
+      tags:
+      - customers
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: &id005
+                  $ref: '#/components/schemas/Customers'
+    post:
+      summary: Create a Customers
+      tags:
+      - customers
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: *id005
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: *id005
+  /customers/{id}:
+    get:
+      summary: Get a Customers by id
+      tags:
+      - customers
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: *id005
+        '404':
+          description: Not found
+  /devices:
+    get:
+      summary: List devices
+      tags:
+      - devices
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: &id006
+                  $ref: '#/components/schemas/Devices'
+    post:
+      summary: Create a Devices
+      tags:
+      - devices
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: *id006
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: *id006
+  /devices/{id}:
+    get:
+      summary: Get a Devices by id
+      tags:
+      - devices
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: *id006
+        '404':
+          description: Not found
+  /email_events:
+    get:
+      summary: List email_events
+      tags:
+      - email_events
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: &id007
+                  $ref: '#/components/schemas/EmailEvents'
+    post:
+      summary: Create a EmailEvents
+      tags:
+      - email_events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: *id007
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: *id007
+  /email_events/{id}:
+    get:
+      summary: Get a EmailEvents by id
+      tags:
+      - email_events
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: *id007
+        '404':
+          description: Not found
+  /encounters:
+    get:
+      summary: List encounters
+      tags:
+      - encounters
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: &id008
+                  $ref: '#/components/schemas/Encounters'
+    post:
+      summary: Create a Encounters
+      tags:
+      - encounters
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: *id008
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: *id008
+  /encounters/{id}:
+    get:
+      summary: Get a Encounters by id
+      tags:
+      - encounters
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: *id008
+        '404':
+          description: Not found
+  /invoices:
+    get:
+      summary: List invoices
+      tags:
+      - invoices
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: &id009
+                  $ref: '#/components/schemas/Invoices'
+    post:
+      summary: Create a Invoices
+      tags:
+      - invoices
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: *id009
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: *id009
+  /invoices/{id}:
+    get:
+      summary: Get a Invoices by id
+      tags:
+      - invoices
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: *id009
+        '404':
+          description: Not found
+  /leads:
+    get:
+      summary: List leads
+      tags:
+      - leads
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: &id010
+                  $ref: '#/components/schemas/Leads'
+    post:
+      summary: Create a Leads
+      tags:
+      - leads
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: *id010
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: *id010
+  /leads/{id}:
+    get:
+      summary: Get a Leads by id
+      tags:
+      - leads
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: *id010
+        '404':
+          description: Not found
+  /order_items:
+    get:
+      summary: List order_items
+      tags:
+      - order_items
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: &id011
+                  $ref: '#/components/schemas/OrderItems'
+    post:
+      summary: Create a OrderItems
+      tags:
+      - order_items
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: *id011
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: *id011
+  /order_items/{id}:
+    get:
+      summary: Get a OrderItems by id
+      tags:
+      - order_items
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: *id011
+        '404':
+          description: Not found
+  /orders:
+    get:
+      summary: List orders
+      tags:
+      - orders
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: &id012
+                  $ref: '#/components/schemas/Orders'
+    post:
+      summary: Create a Orders
+      tags:
+      - orders
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: *id012
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: *id012
+  /orders/{id}:
+    get:
+      summary: Get a Orders by id
+      tags:
+      - orders
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: *id012
+        '404':
+          description: Not found
+  /patients:
+    get:
+      summary: List patients
+      tags:
+      - patients
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: &id013
+                  $ref: '#/components/schemas/Patients'
+    post:
+      summary: Create a Patients
+      tags:
+      - patients
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: *id013
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: *id013
+  /patients/{id}:
+    get:
+      summary: Get a Patients by id
+      tags:
+      - patients
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: *id013
+        '404':
+          description: Not found
+  /prescriptions:
+    get:
+      summary: List prescriptions
+      tags:
+      - prescriptions
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: &id014
+                  $ref: '#/components/schemas/Prescriptions'
+    post:
+      summary: Create a Prescriptions
+      tags:
+      - prescriptions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: *id014
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: *id014
+  /prescriptions/{id}:
+    get:
+      summary: Get a Prescriptions by id
+      tags:
+      - prescriptions
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: *id014
+        '404':
+          description: Not found
+  /products:
+    get:
+      summary: List products
+      tags:
+      - products
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: &id015
+                  $ref: '#/components/schemas/Products'
+    post:
+      summary: Create a Products
+      tags:
+      - products
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: *id015
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: *id015
+  /products/{id}:
+    get:
+      summary: Get a Products by id
+      tags:
+      - products
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: *id015
+        '404':
+          description: Not found
+  /providers:
+    get:
+      summary: List providers
+      tags:
+      - providers
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: &id016
+                  $ref: '#/components/schemas/Providers'
+    post:
+      summary: Create a Providers
+      tags:
+      - providers
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: *id016
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: *id016
+  /providers/{id}:
+    get:
+      summary: Get a Providers by id
+      tags:
+      - providers
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: *id016
+        '404':
+          description: Not found
+  /readings:
+    get:
+      summary: List readings
+      tags:
+      - readings
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: &id017
+                  $ref: '#/components/schemas/Readings'
+    post:
+      summary: Create a Readings
+      tags:
+      - readings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: *id017
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: *id017
+  /readings/{id}:
+    get:
+      summary: Get a Readings by id
+      tags:
+      - readings
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: *id017
+        '404':
+          description: Not found
+  /sensors:
+    get:
+      summary: List sensors
+      tags:
+      - sensors
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: &id018
+                  $ref: '#/components/schemas/Sensors'
+    post:
+      summary: Create a Sensors
+      tags:
+      - sensors
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: *id018
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: *id018
+  /sensors/{id}:
+    get:
+      summary: Get a Sensors by id
+      tags:
+      - sensors
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: *id018
+        '404':
+          description: Not found
+  /sites:
+    get:
+      summary: List sites
+      tags:
+      - sites
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: &id019
+                  $ref: '#/components/schemas/Sites'
+    post:
+      summary: Create a Sites
+      tags:
+      - sites
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: *id019
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: *id019
+  /sites/{id}:
+    get:
+      summary: Get a Sites by id
+      tags:
+      - sites
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: *id019
+        '404':
+          description: Not found
+  /subscriptions:
+    get:
+      summary: List subscriptions
+      tags:
+      - subscriptions
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: &id020
+                  $ref: '#/components/schemas/Subscriptions'
+    post:
+      summary: Create a Subscriptions
+      tags:
+      - subscriptions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: *id020
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: *id020
+  /subscriptions/{id}:
+    get:
+      summary: Get a Subscriptions by id
+      tags:
+      - subscriptions
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: *id020
+        '404':
+          description: Not found
+  /transactions:
+    get:
+      summary: List transactions
+      tags:
+      - transactions
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: &id021
+                  $ref: '#/components/schemas/Transactions'
+    post:
+      summary: Create a Transactions
+      tags:
+      - transactions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: *id021
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: *id021
+  /transactions/{id}:
+    get:
+      summary: Get a Transactions by id
+      tags:
+      - transactions
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: *id021
+        '404':
+          description: Not found
+  /users:
+    get:
+      summary: List users
+      tags:
+      - users
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: &id022
+                  $ref: '#/components/schemas/Users'
+    post:
+      summary: Create a Users
+      tags:
+      - users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: *id022
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: *id022
+  /users/{id}:
+    get:
+      summary: Get a Users by id
+      tags:
+      - users
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: *id022
+        '404':
+          description: Not found
+  /web_sessions:
+    get:
+      summary: List web_sessions
+      tags:
+      - web_sessions
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: &id023
+                  $ref: '#/components/schemas/WebSessions'
+    post:
+      summary: Create a WebSessions
+      tags:
+      - web_sessions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: *id023
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: *id023
+  /web_sessions/{id}:
+    get:
+      summary: Get a WebSessions by id
+      tags:
+      - web_sessions
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: *id023
+        '404':
+          description: Not found
+components:
+  schemas:
+    Accounts:
+      type: object
+      required:
+      - id
+      - name
+      - plan
+      - country
+      - created_at
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        plan:
+          type: string
+        country:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+    AdSpend:
+      type: object
+      required:
+      - id
+      - campaign_id
+      - spend_date
+      - impressions
+      - clicks
+      - spend
+      properties:
+        id:
+          type: integer
+          format: int64
+        campaign_id:
+          type: integer
+          format: int64
+        spend_date:
+          type: string
+          format: date
+        impressions:
+          type: integer
+          format: int32
+        clicks:
+          type: integer
+          format: int32
+        spend:
+          type: number
+          format: double
+    Branches:
+      type: object
+      required:
+      - id
+      - name
+      - city
+      - country
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        city:
+          type: string
+        country:
+          type: string
+    Campaigns:
+      type: object
+      required:
+      - id
+      - name
+      - channel
+      - start_date
+      - end_date
+      - budget
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        channel:
+          type: string
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        budget:
+          type: number
+          format: double
+    Customers:
+      type: object
+      required:
+      - id
+      - name
+      - email
+      - country
+      - created_at
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        email:
+          type: string
+        country:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+    Devices:
+      type: object
+      required:
+      - id
+      - site_id
+      - model
+      - firmware
+      - installed_at
+      properties:
+        id:
+          type: integer
+          format: int64
+        site_id:
+          type: integer
+          format: int64
+        model:
+          type: string
+        firmware:
+          type: string
+        installed_at:
+          type: string
+          format: date-time
+    EmailEvents:
+      type: object
+      required:
+      - id
+      - campaign_id
+      - lead_id
+      - event_type
+      - ts
+      properties:
+        id:
+          type: integer
+          format: int64
+        campaign_id:
+          type: integer
+          format: int64
+        lead_id:
+          type: integer
+          format: int64
+        event_type:
+          type: string
+        ts:
+          type: string
+          format: date-time
+    Encounters:
+      type: object
+      required:
+      - id
+      - patient_id
+      - provider_id
+      - encounter_date
+      - type
+      - status
+      properties:
+        id:
+          type: integer
+          format: int64
+        patient_id:
+          type: integer
+          format: int64
+        provider_id:
+          type: integer
+          format: int64
+        encounter_date:
+          type: string
+          format: date-time
+        type:
+          type: string
+        status:
+          type: string
+    Invoices:
+      type: object
+      required:
+      - id
+      - subscription_id
+      - issued_at
+      - amount
+      - paid
+      properties:
+        id:
+          type: integer
+          format: int64
+        subscription_id:
+          type: integer
+          format: int64
+        issued_at:
+          type: string
+          format: date-time
+        amount:
+          type: number
+          format: double
+        paid:
+          type: boolean
+    Leads:
+      type: object
+      required:
+      - id
+      - name
+      - email
+      - source
+      - country
+      - status
+      - created_at
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        email:
+          type: string
+        source:
+          type: string
+        country:
+          type: string
+        status:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+    OrderItems:
+      type: object
+      required:
+      - id
+      - order_id
+      - product_id
+      - quantity
+      - unit_price
+      properties:
+        id:
+          type: integer
+          format: int64
+        order_id:
+          type: integer
+          format: int64
+        product_id:
+          type: integer
+          format: int64
+        quantity:
+          type: integer
+          format: int32
+        unit_price:
+          type: number
+          format: double
+    Orders:
+      type: object
+      required:
+      - id
+      - customer_id
+      - status
+      - order_date
+      - total
+      properties:
+        id:
+          type: integer
+          format: int64
+        customer_id:
+          type: integer
+          format: int64
+        status:
+          type: string
+        order_date:
+          type: string
+          format: date-time
+        total:
+          type: number
+          format: double
+    Patients:
+      type: object
+      required:
+      - id
+      - name
+      - birth_date
+      - gender
+      - country
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        birth_date:
+          type: string
+          format: date
+        gender:
+          type: string
+        country:
+          type: string
+    Prescriptions:
+      type: object
+      required:
+      - id
+      - encounter_id
+      - drug
+      - dosage
+      - days_supply
+      properties:
+        id:
+          type: integer
+          format: int64
+        encounter_id:
+          type: integer
+          format: int64
+        drug:
+          type: string
+        dosage:
+          type: string
+        days_supply:
+          type: integer
+          format: int32
+    Products:
+      type: object
+      required:
+      - id
+      - sku
+      - name
+      - category
+      - price
+      - in_stock
+      properties:
+        id:
+          type: integer
+          format: int64
+        sku:
+          type: string
+        name:
+          type: string
+        category:
+          type: string
+        price:
+          type: number
+          format: double
+        in_stock:
+          type: boolean
+    Providers:
+      type: object
+      required:
+      - id
+      - name
+      - specialty
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        specialty:
+          type: string
+    Readings:
+      type: object
+      required:
+      - id
+      - sensor_id
+      - ts
+      - value
+      properties:
+        id:
+          type: integer
+          format: int64
+        sensor_id:
+          type: integer
+          format: int64
+        ts:
+          type: string
+          format: date-time
+        value:
+          type: number
+          format: double
+    Sensors:
+      type: object
+      required:
+      - id
+      - device_id
+      - metric
+      - unit
+      properties:
+        id:
+          type: integer
+          format: int64
+        device_id:
+          type: integer
+          format: int64
+        metric:
+          type: string
+        unit:
+          type: string
+    Sites:
+      type: object
+      required:
+      - id
+      - name
+      - city
+      - country
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        city:
+          type: string
+        country:
+          type: string
+    Subscriptions:
+      type: object
+      required:
+      - id
+      - account_id
+      - plan
+      - status
+      - started_at
+      - mrr
+      properties:
+        id:
+          type: integer
+          format: int64
+        account_id:
+          type: integer
+          format: int64
+        plan:
+          type: string
+        status:
+          type: string
+        started_at:
+          type: string
+          format: date-time
+        mrr:
+          type: number
+          format: double
+    Transactions:
+      type: object
+      required:
+      - id
+      - account_id
+      - ts
+      - amount
+      - kind
+      properties:
+        id:
+          type: integer
+          format: int64
+        account_id:
+          type: integer
+          format: int64
+        ts:
+          type: string
+          format: date-time
+        amount:
+          type: number
+          format: double
+        kind:
+          type: string
+        description:
+          type: string
+    Users:
+      type: object
+      required:
+      - id
+      - account_id
+      - email
+      - role
+      - active
+      properties:
+        id:
+          type: integer
+          format: int64
+        account_id:
+          type: integer
+          format: int64
+        email:
+          type: string
+        role:
+          type: string
+        active:
+          type: boolean
+    WebSessions:
+      type: object
+      required:
+      - id
+      - lead_id
+      - ts
+      - source
+      - medium
+      - pageviews
+      - duration_sec
+      properties:
+        id:
+          type: integer
+          format: int64
+        lead_id:
+          type: integer
+          format: int64
+        ts:
+          type: string
+          format: date-time
+        source:
+          type: string
+        medium:
+          type: string
+        pageviews:
+          type: integer
+          format: int32
+        duration_sec:
+          type: integer
+          format: int32
