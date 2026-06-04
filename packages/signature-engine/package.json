@@ -1,0 +1,9 @@
+{
+  "name": "@oax/signature-engine",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "description": "Canonicalizes skill contracts, computes SHA-256 digests, and produces placeholder signatures."
+}
