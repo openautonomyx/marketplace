@@ -51,12 +51,49 @@ python3 -m unittest discover -s tests -v
 python3 seatunnel_operator.py render --cr my-seatunneljob.json
 ```
 
+## Quickstart on a local cluster (daemonless / no Docker)
+
+`quickstart-local.sh` stands up a throwaway cluster and wires up the operator.
+It is **daemonless and dockerless by default**: it prefers [Podman](https://podman.io/)
+over Docker and, in the default `MODE=local`, runs the operator as a plain host
+process so there is **no image to build at all**.
+
+```bash
+# kind (Podman provider) or minikube --driver=podman, then operator as a host process
+./tools/seatunnel-operator/quickstart-local.sh
+
+# add the Kubernetes Dashboard
+DASHBOARD=1 ./tools/seatunnel-operator/quickstart-local.sh
+
+# build + deploy the operator in-cluster instead (podman build, no Docker daemon)
+MODE=in-cluster ./tools/seatunnel-operator/quickstart-local.sh
+```
+
+> **k3d is intentionally avoided** here — it requires the Docker daemon. The
+> daemonless stack is Podman + kind (Podman provider) or `minikube --driver=podman`.
+> To just *run* the operator you don't even need a container engine — `python3
+> seatunnel_operator.py run` against any kubeconfig is enough.
+
+## Dashboard
+
+The operator ships no UI; SeaTunnelJobs are first-class API objects, so any
+cluster dashboard lists them (with the CRD's printer columns) once installed.
+[`dashboard.yaml`](dashboard.yaml) adds a login ServiceAccount + RBAC (including
+read on the SeaTunnelJob CRD) for the standard **Kubernetes Dashboard**:
+
+```bash
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
+kubectl apply -f tools/seatunnel-operator/dashboard.yaml
+kubectl -n kubernetes-dashboard create token dashboard-user        # paste at login
+kubectl -n kubernetes-dashboard port-forward svc/kubernetes-dashboard 8443:443
+```
+
 ## Deploy on microk8s
 
 ```bash
-# 0) build/push the operator image to the microk8s registry
-docker build -t localhost:32000/seatunnel-operator:dev tools/seatunnel-operator
-docker push localhost:32000/seatunnel-operator:dev
+# 0) build the operator image (use `podman build` if you avoid Docker)
+podman build -t localhost:32000/seatunnel-operator:dev tools/seatunnel-operator
+podman push localhost:32000/seatunnel-operator:dev
 
 # 1) install the CRD, RBAC, and the operator — one bundled manifest
 microk8s kubectl apply -f tools/seatunnel-operator/install.yaml
