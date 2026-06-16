@@ -1,0 +1,29 @@
+{
+  "name": "@openautonomyx/marketplace",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Performance-in-context evaluation, benchmarking, certification, signing, and registry engine for the OpenAutonomyX skill marketplace.",
+  "type": "module",
+  "license": "Apache-2.0",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "tsc --build",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test tests/*.test.ts",
+    "lint": "eslint ."
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.13.0",
+    "@types/node": "^22.7.0",
+    "eslint": "^9.13.0",
+    "globals": "^15.11.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0",
+    "typescript-eslint": "^8.10.0"
+  },
+  "engines": {
+    "node": ">=20.11.0"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "name": "@oax/trust-engine",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "description": "Combines certification, benchmark, maintainer, and runtime signals into a trust profile."
+}
