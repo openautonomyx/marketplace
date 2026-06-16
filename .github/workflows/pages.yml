@@ -1,0 +1,40 @@
+name: Deploy site to GitHub Pages
+
+# Publishes the static landing page in site/ to GitHub Pages.
+# Runs on GitHub's infrastructure, so it is unaffected by sandbox network limits.
+#
+# One-time setup (repo Settings → Pages): set "Source" to "GitHub Actions".
+# After that, every push to main (or a manual run) deploys site/ live.
+
+on:
+  push:
+    branches: ["main"]
+    paths: ["site/**", ".github/workflows/pages.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow one concurrent deployment; newer runs cancel queued ones.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - name: Upload site/ as Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
