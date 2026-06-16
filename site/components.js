@@ -42,6 +42,45 @@ const VIEWS = [
   { label: "Popular" }
 ];
 
+// Example certified agents/skills rendered as agent cards in the registry grid.
+const AGENTS = [
+  {
+    name: "GitHub PR Review",
+    publisher: "OpenAutonomyX",
+    workType: "code-review",
+    level: "Certified Gold",
+    trust: 88,
+    fit: 97
+  },
+  {
+    name: "Incident Triage",
+    publisher: "OpenAutonomyX",
+    workType: "incident-triage",
+    level: "Certified Silver",
+    trust: 81,
+    fit: 90
+  },
+  {
+    name: "Vendor Security Review",
+    publisher: "OpenAutonomyX",
+    workType: "vendor-review",
+    level: "Enterprise Approved",
+    trust: 93,
+    fit: 95
+  }
+];
+
+/** Map a certification level to a badge modifier class. */
+const levelClass = (level) => {
+  const l = String(level).toLowerCase();
+  if (l.includes("enterprise")) return "enterprise";
+  if (l.includes("gold")) return "gold";
+  if (l.includes("silver")) return "silver";
+  if (l.includes("bronze")) return "bronze";
+  if (l.includes("restricted") || l.includes("revoked") || l.includes("suspended")) return "restricted";
+  return "neutral";
+};
+
 /* ------------------------------------------------------------- utilities --- */
 
 /** Minimal HTML-escape for attribute-sourced text. */
@@ -179,6 +218,41 @@ const viewsEl = () => `
     </div>
   </section>`;
 
+// <oax-agent-card name publisher worktype level trust fit>
+const agentCardEl = (el) => {
+  const level = el.getAttribute("level") || "Unreviewed";
+  return `
+    <div class="ac-head">
+      <span class="ac-mark"></span>
+      <div class="ac-id">
+        <h3>${esc(el.getAttribute("name"))}</h3>
+        <span class="ac-pub">by ${esc(el.getAttribute("publisher"))}</span>
+      </div>
+      <span class="ac-badge ${levelClass(level)}">${esc(level)}</span>
+    </div>
+    <p class="ac-work">${esc(el.getAttribute("worktype"))}</p>
+    <div class="ac-metrics">
+      <div><span class="ac-num">${esc(el.getAttribute("trust"))}</span><span class="ac-lbl">Trust</span></div>
+      <div><span class="ac-num">${esc(el.getAttribute("fit"))}%</span><span class="ac-lbl">Context fit</span></div>
+    </div>`;
+};
+
+const registryEl = () => `
+  <section id="registry" style="padding-top:0;">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Certified agents</span>
+        <h2>Agents, scored for your context</h2>
+      </div>
+      <div class="grid">
+        ${AGENTS.map(
+          (a) =>
+            `<oax-agent-card name="${esc(a.name)}" publisher="${esc(a.publisher)}" worktype="${esc(a.workType)}" level="${esc(a.level)}" trust="${esc(a.trust)}" fit="${esc(a.fit)}"></oax-agent-card>`
+        ).join("")}
+      </div>
+    </div>
+  </section>`;
+
 const ctaEl = () => `
   <section id="start" style="padding-top:0;">
     <div class="wrap">
@@ -209,12 +283,14 @@ export function registerComponents() {
   component("oax-step", stepEl, "step");
   component("oax-tag", tagEl, "tag");
   component("oax-list", listEl);
+  component("oax-agent-card", agentCardEl, "card agent-card");
   // sections
   component("oax-nav", navEl);
   component("oax-hero", heroEl);
   component("oax-pillars", pillarsEl);
   component("oax-pipeline", pipelineEl);
   component("oax-views", viewsEl);
+  component("oax-registry", registryEl);
   component("oax-cta", ctaEl);
   component("oax-footer", footerEl);
 }

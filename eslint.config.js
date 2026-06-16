@@ -9,6 +9,16 @@ export default tseslint.config(
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
+    // Browser-side static site: ES modules with browser globals.
+    files: ["site/**/*.js"],
+    languageOptions: {
+      sourceType: "module",
+      globals: {
+        ...globals.browser
+      }
+    }
+  },
+  {
     languageOptions: {
       globals: {
         ...globals.node

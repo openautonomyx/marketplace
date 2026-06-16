@@ -78,6 +78,28 @@ oax-card.card:hover { border-color: #36507a; transform: translateY(-3px); }
 .card h3 { font-size: 18px; letter-spacing: -0.01em; }
 .card p { color: var(--muted); font-size: 15px; margin-top: 8px; }
 
+/* Agent card */
+oax-agent-card.agent-card { display: flex; flex-direction: column; gap: 14px; }
+.ac-head { display: flex; align-items: center; gap: 12px; }
+.ac-mark { width: 34px; height: 34px; border-radius: 9px; flex: 0 0 auto;
+  background: conic-gradient(from 200deg, var(--brand), var(--brand-2), var(--gold), var(--brand));
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.08) inset; }
+.ac-id { flex: 1 1 auto; min-width: 0; }
+.ac-id h3 { font-size: 16px; letter-spacing: -0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ac-pub { color: var(--muted); font-size: 12px; }
+.ac-work { color: var(--brand-2); font-size: 13px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.ac-badge { font-size: 11px; font-weight: 700; padding: 5px 9px; border-radius: 999px; border: 1px solid var(--line);
+  color: var(--muted); white-space: nowrap; }
+.ac-badge.gold { color: var(--gold); border-color: #5a4a23; background: rgba(245,196,94,0.08); }
+.ac-badge.silver { color: #cdd7e6; border-color: #3a4761; background: rgba(205,215,230,0.06); }
+.ac-badge.bronze { color: #d8a273; border-color: #5a4129; }
+.ac-badge.enterprise { color: var(--brand-2); border-color: #1f5a52; background: rgba(56,224,196,0.08); }
+.ac-badge.restricted { color: #ff8a8a; border-color: #5a2b2b; }
+.ac-metrics { display: flex; gap: 22px; padding-top: 4px; border-top: 1px solid var(--line); margin-top: 2px; }
+.ac-metrics > div { display: flex; flex-direction: column; }
+.ac-num { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
+.ac-lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+
 /* Pipeline */
 .pipe { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin-top: 36px; }
 oax-step.step { border: 1px solid var(--line); background: var(--bg-soft); border-radius: 12px; padding: 14px 10px; text-align: center; }
