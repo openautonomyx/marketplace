@@ -26,35 +26,87 @@
       "value": "security-review"
     }
   ],
-  "supportedWorkType": ["code-review", "security-review"],
-  "protocolSupport": ["mcp", "openai-tools"],
-  "toolsUsed": ["github.pulls.read", "github.contents.read", "github.issues.comment"],
-  "permissionsRequired": ["github.pulls.read", "github.contents.read", "github.issues.comment"],
+  "supportedWorkType": [
+    "code-review",
+    "security-review"
+  ],
+  "protocolSupport": [
+    "mcp",
+    "openai-tools"
+  ],
+  "toolsUsed": [
+    "github.pulls.read",
+    "github.contents.read",
+    "github.issues.comment"
+  ],
+  "permissionsRequired": [
+    "github.pulls.read",
+    "github.contents.read",
+    "github.issues.comment"
+  ],
   "inputSchema": {
     "type": "object",
-    "required": ["repository", "pullRequestNumber"],
+    "required": [
+      "repository",
+      "pullRequestNumber"
+    ],
     "properties": {
-      "repository": { "type": "string", "description": "owner/repo" },
-      "pullRequestNumber": { "type": "integer", "minimum": 1 },
-      "diff": { "type": "string", "description": "Unified diff of the pull request." }
+      "repository": {
+        "type": "string",
+        "description": "owner/repo"
+      },
+      "pullRequestNumber": {
+        "type": "integer",
+        "minimum": 1
+      },
+      "diff": {
+        "type": "string",
+        "description": "Unified diff of the pull request."
+      }
     }
   },
   "outputSchema": {
     "type": "object",
-    "required": ["findings", "summary"],
+    "required": [
+      "findings",
+      "summary"
+    ],
     "properties": {
-      "summary": { "type": "string" },
+      "summary": {
+        "type": "string"
+      },
       "findings": {
         "type": "array",
         "items": {
           "type": "object",
-          "required": ["file", "line", "severity", "message"],
+          "required": [
+            "file",
+            "line",
+            "severity",
+            "message"
+          ],
           "properties": {
-            "file": { "type": "string" },
-            "line": { "type": "integer" },
-            "severity": { "type": "string", "enum": ["info", "minor", "major", "blocker"] },
-            "message": { "type": "string" },
-            "citation": { "type": "string" }
+            "file": {
+              "type": "string"
+            },
+            "line": {
+              "type": "integer"
+            },
+            "severity": {
+              "type": "string",
+              "enum": [
+                "info",
+                "minor",
+                "major",
+                "blocker"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "citation": {
+              "type": "string"
+            }
           }
         }
       }
@@ -75,11 +127,26 @@
     "Findings are advisory; the skill never merges or closes pull requests."
   ],
   "performanceClaims": [
-    { "id": "claim.latency", "statement": "Median end-to-end latency 1200ms on diffs < 1k lines.", "metric": "latencyMs", "value": 1200 },
-    { "id": "claim.cost", "statement": "Approximately $0.04 per review.", "metric": "costPerRunUsd", "value": 0.04 }
+    {
+      "id": "claim.latency",
+      "statement": "Median end-to-end latency 1200ms on diffs < 1k lines.",
+      "metric": "latencyMs",
+      "value": 1200
+    },
+    {
+      "id": "claim.cost",
+      "statement": "Approximately $0.04 per review.",
+      "metric": "costPerRunUsd",
+      "value": 0.04
+    }
   ],
   "reliabilityClaims": [
-    { "id": "claim.reliability", "statement": "99.5% successful completion over 30 days.", "metric": "reliability", "value": 0.995 }
+    {
+      "id": "claim.reliability",
+      "statement": "99.5% successful completion over 30 days.",
+      "metric": "reliability",
+      "value": 0.995
+    }
   ],
   "failureModes": [
     "Times out on very large diffs (> 5k changed lines).",
@@ -98,10 +165,10 @@
   "certificationScope": "code-review for TypeScript monorepos under SOC2/PCI-DSS with audit-log control",
   "signature": {
     "digestAlgorithm": "sha-256",
-    "digest": "PLACEHOLDER_DIGEST_RECOMPUTE_WITH_SIGNATURE_ENGINE",
+    "digest": "fb9e76e81dc62d10360cd00fb4fc3ddfbea9b6daa850ae8cf6df51bbcf072d94",
     "signerId": "signer.openautonomyx.marketplace",
     "signatureAlgorithm": "placeholder",
-    "createdAt": "2026-06-04T00:00:00Z",
+    "createdAt": "2026-06-16T13:03:03.125Z",
     "note": "Placeholder signature: digest only, no cryptographic private-key signing. DID/Verifiable Credential and Sigstore-backed signing land in a later milestone."
   }
 }
