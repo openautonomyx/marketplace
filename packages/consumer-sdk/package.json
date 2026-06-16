@@ -1,0 +1,9 @@
+{
+  "name": "@oax/consumer-sdk",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "description": "Platform-side SDK for consuming certified marketplace registry entries: filter, verify, and select skills by performance-in-context."
+}

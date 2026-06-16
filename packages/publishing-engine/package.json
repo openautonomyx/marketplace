@@ -1,0 +1,9 @@
+{
+  "name": "@oax/publishing-engine",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "description": "Open multi-vendor publishing: anyone can register as a seller and submit skill listings into the certification pipeline."
+}

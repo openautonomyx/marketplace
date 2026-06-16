@@ -1,0 +1,96 @@
+/*
+ * Build and sign the GitHub PR Review skill contract, then write it out as
+ * JSON-LD with a real (computed) SHA-256 digest. Run:  npx tsx scripts/build-contract.ts
+ */
+import { writeFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, resolve } from "node:path";
+
+import { signContract, verifyDigest, type SkillContract } from "@oax/signature-engine";
+
+const here = dirname(fileURLToPath(import.meta.url));
+const OUT = resolve(here, "../examples/skill-contracts/github-pr-review.skill-contract.jsonld");
+
+const contract: SkillContract = {
+  "@context": [
+    "https://www.w3.org/ns/credentials/v2",
+    "https://schema.openautonomyx.com/skill-contract/v1"
+  ],
+  "@type": "SkillContract",
+  skillId: "skill.github-pr-review",
+  version: "1.0.0",
+  publisher: { id: "pub.openautonomyx", name: "OpenAutonomyX", verified: true, did: "did:web:openautonomyx.com" },
+  capabilityClaims: [
+    { id: "claim.cap.code-review", statement: "Reviews pull request diffs and produces actionable, cited findings.", metric: "capability", value: "code-review" },
+    { id: "claim.cap.security-scan", statement: "Flags common insecure patterns in changed lines.", metric: "capability", value: "security-review" }
+  ],
+  supportedWorkType: ["code-review", "security-review"],
+  protocolSupport: ["mcp", "openai-tools"],
+  toolsUsed: ["github.pulls.read", "github.contents.read", "github.issues.comment"],
+  permissionsRequired: ["github.pulls.read", "github.contents.read", "github.issues.comment"],
+  inputSchema: {
+    type: "object",
+    required: ["repository", "pullRequestNumber"],
+    properties: {
+      repository: { type: "string", description: "owner/repo" },
+      pullRequestNumber: { type: "integer", minimum: 1 },
+      diff: { type: "string", description: "Unified diff of the pull request." }
+    }
+  },
+  outputSchema: {
+    type: "object",
+    required: ["findings", "summary"],
+    properties: {
+      summary: { type: "string" },
+      findings: {
+        type: "array",
+        items: {
+          type: "object",
+          required: ["file", "line", "severity", "message"],
+          properties: {
+            file: { type: "string" },
+            line: { type: "integer" },
+            severity: { type: "string", enum: ["info", "minor", "major", "blocker"] },
+            message: { type: "string" },
+            citation: { type: "string" }
+          }
+        }
+      }
+    }
+  },
+  dataAccessScope: ["pull-request-metadata", "changed-file-contents", "repository-read-only"],
+  environmentAssumptions: [
+    "Runs inside GitHub Actions or an MCP host with restricted network egress.",
+    "No write access to repository contents.",
+    "Secrets are provided via the host, never embedded in the skill."
+  ],
+  processAssumptions: [
+    "A human approval step gates any merge.",
+    "Findings are advisory; the skill never merges or closes pull requests."
+  ],
+  performanceClaims: [
+    { id: "claim.latency", statement: "Median end-to-end latency 1200ms on diffs < 1k lines.", metric: "latencyMs", value: 1200 },
+    { id: "claim.cost", statement: "Approximately $0.04 per review.", metric: "costPerRunUsd", value: 0.04 }
+  ],
+  reliabilityClaims: [
+    { id: "claim.reliability", statement: "99.5% successful completion over 30 days.", metric: "reliability", value: 0.995 }
+  ],
+  failureModes: [
+    "Times out on very large diffs (> 5k changed lines).",
+    "May miss findings in generated or vendored files.",
+    "Degrades to summary-only output if file contents are unavailable."
+  ],
+  auditEvidence: [
+    "Emits a structured run log with tool calls and token usage.",
+    "Each finding includes a citation to the changed line that triggered it."
+  ],
+  governanceRequirements: ["audit-log", "human-approval-before-merge", "no-contents-write"],
+  certificationScope: "code-review for TypeScript monorepos under SOC2/PCI-DSS with audit-log control"
+};
+
+const signed = signContract(contract, "signer.openautonomyx.marketplace");
+writeFileSync(OUT, JSON.stringify(signed, null, 2) + "\n");
+
+console.log("Wrote", OUT);
+console.log("Digest:", signed.signature?.digest);
+console.log("Integrity verified:", verifyDigest(signed));
