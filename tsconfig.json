@@ -27,7 +27,8 @@
       "@oax/trust-engine": ["packages/trust-engine/src/index.ts"],
       "@oax/action-engine": ["packages/action-engine/src/index.ts"],
       "@oax/consumer-sdk": ["packages/consumer-sdk/src/index.ts"],
-      "@oax/module-registry": ["packages/module-registry/src/index.ts"]
+      "@oax/module-registry": ["packages/module-registry/src/index.ts"],
+      "@oax/publishing-engine": ["packages/publishing-engine/src/index.ts"]
     }
   },
   "include": ["packages/**/*.ts", "tests/**/*.ts"]
