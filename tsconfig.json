@@ -25,7 +25,8 @@
       "@oax/signature-engine": ["packages/signature-engine/src/index.ts"],
       "@oax/registry-engine": ["packages/registry-engine/src/index.ts"],
       "@oax/trust-engine": ["packages/trust-engine/src/index.ts"],
-      "@oax/action-engine": ["packages/action-engine/src/index.ts"]
+      "@oax/action-engine": ["packages/action-engine/src/index.ts"],
+      "@oax/consumer-sdk": ["packages/consumer-sdk/src/index.ts"]
     }
   },
   "include": ["packages/**/*.ts", "tests/**/*.ts"]
