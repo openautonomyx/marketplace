@@ -1,0 +1,54 @@
+# OpenAPI 3.0.1 ingestion schema for a Salesforce Data Cloud Ingestion API connector.
+#
+# Upload this when creating the Ingestion API connector in Data Cloud Setup; each
+# component schema below becomes an ingestion *source object* you can stream/bulk
+# into. After ingestion, map these Data Lake Objects (DLOs) to the standard Data
+# Model Objects (DMOs) noted in README.md.
+#
+# VERIFY against your org: Data Cloud periodically tweaks accepted types/limits.
+# Supported field types here: string, number, boolean, and string+format:date-time.
+openapi: 3.0.1
+info:
+  title: Ecommerce Ingestion Schema
+  version: 1.0.0
+  description: Customers, products, and orders for Data Cloud ingestion.
+paths: {}
+components:
+  schemas:
+    Customer:                         # -> standard DMO: Individual (+ Contact Point Email)
+      type: object
+      required: [id, email, createdDate]
+      properties:
+        id:          { type: string }
+        fullName:    { type: string }
+        email:       { type: string }
+        country:     { type: string }
+        createdDate: { type: string, format: date-time }
+    Product:                          # -> standard DMO: Product
+      type: object
+      required: [id, sku]
+      properties:
+        id:       { type: string }
+        sku:      { type: string }
+        name:     { type: string }
+        category: { type: string }
+        price:    { type: number }
+        inStock:  { type: boolean }
+    SalesOrder:                       # -> standard DMO: Sales Order
+      type: object
+      required: [id, customerId, orderDate]
+      properties:
+        id:          { type: string }
+        customerId:  { type: string }
+        status:      { type: string }
+        orderDate:   { type: string, format: date-time }
+        totalAmount: { type: number }
+    SalesOrderItem:                   # -> standard DMO: Sales Order Product
+      type: object
+      required: [id, orderId, productId]
+      properties:
+        id:         { type: string }
+        orderId:    { type: string }
+        productId:  { type: string }
+        quantity:   { type: number }
+        unitPrice:  { type: number }

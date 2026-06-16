@@ -1,0 +1,144 @@
+{
+  "info": {
+    "name": "Salesforce Marketing Cloud (test data)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "OAuth v2 + Data Extension async upsert. Works against real SFMC or the local mock (mock_sfmc.py)."
+  },
+  "variable": [
+    {
+      "key": "authUrl",
+      "value": "https://SUBDOMAIN.auth.marketingcloudapis.com"
+    },
+    {
+      "key": "restUrl",
+      "value": "https://SUBDOMAIN.rest.marketingcloudapis.com"
+    },
+    {
+      "key": "clientId",
+      "value": ""
+    },
+    {
+      "key": "clientSecret",
+      "value": ""
+    },
+    {
+      "key": "mid",
+      "value": ""
+    },
+    {
+      "key": "deKey",
+      "value": "Subscribers"
+    },
+    {
+      "key": "token",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Auth",
+      "item": [
+        {
+          "name": "Get token (client_credentials)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{authUrl}}/v2/token",
+              "host": [
+                "{{authUrl}}"
+              ],
+              "path": [
+                "v2",
+                "token"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"grant_type\": \"client_credentials\",\n  \"client_id\": \"{{clientId}}\",\n  \"client_secret\": \"{{clientSecret}}\",\n  \"account_id\": \"{{mid}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Data Extensions",
+      "item": [
+        {
+          "name": "Upsert Subscribers (async)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{restUrl}}/data/v1/async/dataextensions/key:{{deKey}}/rows",
+              "host": [
+                "{{restUrl}}"
+              ],
+              "path": [
+                "data",
+                "v1",
+                "async",
+                "dataextensions",
+                "key:{{deKey}}",
+                "rows"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    {\n      \"SubscriberKey\": \"L1\",\n      \"EmailAddress\": \"lead1@example.com\",\n      \"Status\": \"Active\",\n      \"Country\": \"NG\",\n      \"Source\": \"ads\",\n      \"DateCreated\": \"2023-12-01 07:24:00+0000\"\n    },\n    {\n      \"SubscriberKey\": \"L2\",\n      \"EmailAddress\": \"lead2@example.com\",\n      \"Status\": \"Unsubscribed\",\n      \"Country\": \"NG\",\n      \"Source\": \"referral\",\n      \"DateCreated\": \"2023-04-05 15:40:00+0000\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Async request status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{restUrl}}/data/v1/async/{{requestId}}/status",
+              "host": [
+                "{{restUrl}}"
+              ],
+              "path": [
+                "data",
+                "v1",
+                "async",
+                "{{requestId}}",
+                "status"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

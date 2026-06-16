@@ -1,0 +1,15 @@
+{
+  "_comment": "Field definitions for the Subscribers sendable Data Extension. Shape for creating the DE (REST /data/v1/customobjects or SOAP DataExtension). Verify field types against your SFMC account.",
+  "name": "Subscribers",
+  "key": "Subscribers",
+  "isSendable": true,
+  "sendableSubscriberField": "SubscriberKey",
+  "fields": [
+    { "name": "SubscriberKey", "fieldType": "Text",         "maxLength": 50,  "isPrimaryKey": true,  "isRequired": true },
+    { "name": "EmailAddress",  "fieldType": "EmailAddress",                    "isRequired": true },
+    { "name": "Status",        "fieldType": "Text",         "maxLength": 20 },
+    { "name": "Country",       "fieldType": "Text",         "maxLength": 2 },
+    { "name": "Source",        "fieldType": "Text",         "maxLength": 20 },
+    { "name": "DateCreated",   "fieldType": "Date" }
+  ]
+}

@@ -1,0 +1,60 @@
+# Access bits for the standard Kubernetes Dashboard, scoped so you can watch
+# SeaTunnelJobs (the CRD) plus the Jobs/Pods/logs the operator spawns.
+#
+# The Dashboard itself is installed from upstream (one command); this file only
+# adds a login ServiceAccount + RBAC. Custom resources like SeaTunnelJob show up
+# under the Dashboard's "Custom Resource Definitions" section.
+#
+# Install:
+#   # 1) the Dashboard (creates the kubernetes-dashboard namespace + deployment)
+#   kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
+#   # 2) this access manifest
+#   kubectl apply -f dashboard.yaml
+#   # 3) a login token, then a tunnel
+#   kubectl -n kubernetes-dashboard create token dashboard-user
+#   kubectl -n kubernetes-dashboard port-forward svc/kubernetes-dashboard 8443:443
+#   # open https://localhost:8443 and paste the token
+---
+# Login identity for the Dashboard.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: dashboard-user
+  namespace: kubernetes-dashboard
+---
+# Read on the SeaTunnelJob CRD (the built-in `view` role does not cover CRDs).
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: seatunnel-dashboard-view
+rules:
+  - apiGroups: ["marketplace.openautonomyx.io"]
+    resources: ["seatunneljobs", "seatunneljobs/status"]
+    verbs: ["get", "list", "watch"]
+---
+# `view` covers core/built-in resources (Jobs, Pods, logs, ConfigMaps, …).
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: dashboard-user-view
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: view
+subjects:
+  - kind: ServiceAccount
+    name: dashboard-user
+    namespace: kubernetes-dashboard
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: dashboard-user-seatunnel
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: seatunnel-dashboard-view
+subjects:
+  - kind: ServiceAccount
+    name: dashboard-user
+    namespace: kubernetes-dashboard

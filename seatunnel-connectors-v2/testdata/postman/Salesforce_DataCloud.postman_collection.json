@@ -1,0 +1,306 @@
+{
+  "info": {
+    "name": "Salesforce Data Cloud (test data)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Ingestion + Query against Salesforce Data Cloud using the generated test data. Set the variables, run Auth first."
+  },
+  "variable": [
+    {
+      "key": "loginUrl",
+      "value": "https://MYDOMAIN.my.salesforce.com"
+    },
+    {
+      "key": "dcInstance",
+      "value": "https://TENANT.c360a.salesforce.com"
+    },
+    {
+      "key": "connector",
+      "value": "Ecommerce"
+    },
+    {
+      "key": "coreToken",
+      "value": ""
+    },
+    {
+      "key": "token",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Auth",
+      "item": [
+        {
+          "name": "Token exchange -> Data Cloud",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "url": {
+              "raw": "{{loginUrl}}/services/a360/token",
+              "host": [
+                "{{loginUrl}}"
+              ],
+              "path": [
+                "services",
+                "a360",
+                "token"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Ingestion - Streaming",
+      "item": [
+        {
+          "name": "Upsert Product",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{dcInstance}}/api/v1/ingest/sources/{{connector}}/Product",
+              "host": [
+                "{{dcInstance}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "ingest",
+                "sources",
+                "{{connector}}",
+                "Product"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": [\n    {\n      \"id\": \"1\",\n      \"sku\": \"SKU-00001\",\n      \"name\": \"Ultra Gadget\",\n      \"category\": \"Grocery\",\n      \"price\": 162.33,\n      \"inStock\": true\n    },\n    {\n      \"id\": \"2\",\n      \"sku\": \"SKU-00002\",\n      \"name\": \"Eco Gadget\",\n      \"category\": \"Apparel\",\n      \"price\": 83.88,\n      \"inStock\": true\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Upsert SalesOrder (sample)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{dcInstance}}/api/v1/ingest/sources/{{connector}}/SalesOrder",
+              "host": [
+                "{{dcInstance}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "ingest",
+                "sources",
+                "{{connector}}",
+                "SalesOrder"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": [\n    {\n      \"id\": \"1\",\n      \"customerId\": \"5\",\n      \"status\": \"PAID\",\n      \"orderDate\": \"2024-01-15T09:23:00Z\",\n      \"totalAmount\": 501.1\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Ingestion - Bulk",
+      "item": [
+        {
+          "name": "Create job",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{dcInstance}}/api/v1/ingest/jobs",
+              "host": [
+                "{{dcInstance}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "ingest",
+                "jobs"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"object\": \"Customer\",\n  \"sourceName\": \"{{connector}}\",\n  \"operation\": \"upsert\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Upload CSV batch",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "text/csv"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{dcInstance}}/api/v1/ingest/jobs/{{jobId}}/batches",
+              "host": [
+                "{{dcInstance}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "ingest",
+                "jobs",
+                "{{jobId}}",
+                "batches"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "id,sku,name,category,price,inStock\n1,SKU-00001,Classic Notebook,Toys,208.49,true",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Close job",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{dcInstance}}/api/v1/ingest/jobs/{{jobId}}",
+              "host": [
+                "{{dcInstance}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "ingest",
+                "jobs",
+                "{{jobId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"state\": \"UploadComplete\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Query (SQL)",
+      "item": [
+        {
+          "name": "Query SalesOrder",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{dcInstance}}/api/v2/query",
+              "host": [
+                "{{dcInstance}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "query"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sql\": \"SELECT id__c, totalAmount__c FROM SalesOrder__dlm LIMIT 10\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
