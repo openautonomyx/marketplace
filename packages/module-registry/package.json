@@ -1,0 +1,9 @@
+{
+  "name": "@oax/module-registry",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "description": "A registry/directory of the marketplace's pluggable modules (engines and actions), enumerable at runtime and renderable as a JSON-LD catalog."
+}
