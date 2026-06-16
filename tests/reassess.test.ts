@@ -59,6 +59,17 @@ test("healthy runtime keeps the skill certified", () => {
   assert.ok(outcome.runtimeHealth > 0.9);
 });
 
+test("terminal/policy states are not cleared by healthy runtime", () => {
+  const entry = makeEntry(sampleSkill(), sampleContext());
+  const restricted: SkillRegistryEntry = {
+    ...entry,
+    certification: { ...entry.certification, level: "Restricted" }
+  };
+  const outcome = reassessEntry(restricted, [signal(0.99), signal(0.99)]);
+  assert.equal(outcome.entry.certification.level, "Restricted");
+  assert.equal(outcome.changed, false);
+});
+
 test("trust profile is recomputed from the new signals", () => {
   const entry = makeEntry(sampleSkill(), sampleContext());
   const healthy = reassessEntry(entry, [signal(0.99)]);

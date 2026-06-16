@@ -91,6 +91,25 @@ test("verifyEntry passes for a signed, active entry", () => {
   assert.ok(result.checks.find((c) => c.name === "certification-active")?.ok);
 });
 
+test("verifyEntry rejects a contract for a different skill", () => {
+  const entry = makeEntry(sampleSkill(), sampleContext());
+  // An intact contract, but for a different skill than the entry.
+  const otherContract = signContract({ skillId: "skill.other" } as SkillContract, "signer.marketplace");
+  const result = verifyEntry(entry, { contract: otherContract });
+  assert.equal(result.ok, false);
+  assert.equal(result.checks.find((c) => c.name === "contract-skill-match")?.ok, false);
+});
+
+test("verifyEntry accepts the contract the entry was registered with", () => {
+  const skill = sampleSkill();
+  const entry = makeEntry(skill, sampleContext());
+  // makeEntry signs { skillId: skill.id }; rebuild the identical contract.
+  const contract = signContract({ skillId: skill.id } as SkillContract, "signer.marketplace");
+  const result = verifyEntry(entry, { contract });
+  assert.equal(result.ok, true);
+  assert.equal(result.checks.find((c) => c.name === "contract-signature-match")?.ok, true);
+});
+
 test("verifyEntry detects a tampered contract digest", () => {
   const entry = makeEntry(sampleSkill(), sampleContext());
   const contract = signContract(

@@ -1,4 +1,4 @@
-import { certifySkill } from "@oax/certification-engine";
+import { certifySkill, type CertificationLevel } from "@oax/certification-engine";
 import {
   aggregateRuntimeHealth,
   computeTrustProfile,
@@ -6,6 +6,19 @@ import {
 } from "@oax/trust-engine";
 
 import type { SkillRegistryEntry } from "./types";
+
+/**
+ * Terminal / policy states that override ladder placement. Continuous health must
+ * NOT clear these — lifting them requires an explicit recovery path, not a good
+ * runtime signal. (Suspended is deliberately excluded: it is the health-driven
+ * state this loop manages, so it can recover.)
+ */
+const PRESERVED_STATES: ReadonlySet<CertificationLevel> = new Set<CertificationLevel>([
+  "Restricted",
+  "Deprecated",
+  "Revoked",
+  "Expired"
+]);
 
 export interface ReassessOptions {
   /** Auto-suspend the certification when runtime health falls below this (0..1). */
@@ -35,6 +48,17 @@ export function reassessEntry(
 ): ReassessOutcome {
   const threshold = opts.suspendBelowHealth ?? 0.5;
   const runtimeHealth = aggregateRuntimeHealth(newSignals);
+
+  // Terminal/policy states are not cleared by runtime health.
+  if (PRESERVED_STATES.has(entry.certification.level)) {
+    return {
+      entry,
+      runtimeHealth,
+      changed: false,
+      note: `Certification ${entry.certification.level} is a terminal/policy state; reassessment leaves it unchanged (recovery requires an explicit path).`
+    };
+  }
+
   const suspended = runtimeHealth < threshold;
 
   const certification = certifySkill(

@@ -31,7 +31,34 @@ export function verifyEntry(
   });
 
   if (opts.contract) {
-    const intact = verifyDigest(opts.contract);
+    const contract = opts.contract;
+
+    // The contract must be the one this entry was registered with — otherwise a
+    // caller could supply an intact contract for a *different* skill and pass.
+    checks.push({
+      name: "contract-skill-match",
+      ok: contract.skillId === entry.skill.id,
+      detail:
+        contract.skillId === entry.skill.id
+          ? "Contract skill id matches the entry."
+          : `Contract skill id "${contract.skillId}" does not match entry skill "${entry.skill.id}".`
+    });
+
+    // The contract's signature must match the entry's registered signature.
+    const digestsMatch =
+      Boolean(entry.signature) &&
+      Boolean(contract.signature) &&
+      contract.signature?.digest === entry.signature?.digest &&
+      contract.signature?.signerId === entry.signature?.signerId;
+    checks.push({
+      name: "contract-signature-match",
+      ok: digestsMatch,
+      detail: digestsMatch
+        ? "Contract signature matches the entry's registered signature."
+        : "Contract signature does not match the entry's registered signature."
+    });
+
+    const intact = verifyDigest(contract);
     checks.push({
       name: "digest-integrity",
       ok: intact,
